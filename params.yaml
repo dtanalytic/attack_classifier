@@ -1,5 +1,5 @@
 prep_text:
-  lower: true
+  lower: false
   stop_words: true # True - english stopwords or None - not use
   min_len_token: 3
   max_len_token: 10
