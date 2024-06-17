@@ -3,7 +3,7 @@ prep_text:
   stop_words: false # True - english stopwords or None - not use
   min_len_token: 3
   max_len_token: 10
-  save_only_words: true
+  save_only_words: false
   stem_lemm: 'stem' # stem or None
   labelled_text_only: true
   prep_fn: 'data/prep_df.csv'
@@ -27,3 +27,4 @@ train_eval_model:
   metrics_fn: 'data/m.json'
   model_fn: 'data/model.pkl'
 seed: 0
+ 
