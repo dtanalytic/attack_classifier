@@ -1,0 +1,59 @@
+stages:
+  text_preprocess:
+    cmd: python src/prep.py params.yaml
+    deps:
+    - src/prep.py
+    params:
+    - prep_text.lower
+    - prep_text.stop_words
+    - prep_text.min_len_token
+    - prep_text.max_len_token
+    - prep_text.save_only_words
+    - prep_text.stem_lemm
+    - prep_text.labelled_text_only
+    outs:
+    - ${prep_text.prep_fn}
+    - ${prep_text.mlb_fn}
+  feature_generation:
+    cmd: python src/feat_gen.py params.yaml
+    deps:
+    - src/feat_gen.py
+    - ${prep_text.prep_fn}
+    - ${prep_text.mlb_fn}
+    params:
+    - feat_gen.feat_strategy
+    - feat_gen.binary
+    - feat_gen.max_features
+    - seed
+    outs:
+    - ${feat_gen.feat_fn}
+    - ${feat_gen.data_fn}
+    - ${feat_gen.vec_fn}
+  feature_engineering:
+      cmd: python src/feat_eng.py params.yaml
+      deps:
+      - src/feat_eng.py
+      - ${feat_gen.feat_fn}
+      - ${feat_gen.data_fn}
+      - ${feat_gen.vec_fn}
+      params:
+      - feat_eng.tfidf_dim
+      - feat_eng.add_clust_feat
+      - feat_eng.topic_algo
+      - feat_eng.add_topic_feat
+      - seed
+      outs:
+      - ${feat_eng.feat_final_fn}
+  train_eval_model:
+      cmd: python src/train_eval_model.py params.yaml
+      deps:
+      - src/train_eval_model.py
+      - ${feat_eng.feat_final_fn}
+      params:
+      - train_eval_model.chain
+      - train_eval_model.model
+      - seed
+      metrics:
+      - ${train_eval_model.metrics_fn}
+      outs:
+      - ${train_eval_model.model_fn}
