@@ -4,27 +4,26 @@ prep_text:
   min_len_token: 3
   max_len_token: 10
   save_only_words: false
-  stem_lemm: 'stem' # stem or None
+  stem_lemm: 'stem'  # stem or null
   labelled_text_only: true
-  prep_fn: 'data/prep_df.csv'
-  mlb_fn: 'data/mlb.pkl'
+  prep_fn: data/prep_df.csv
+  mlb_fn: data/mlb.pkl
 feat_gen:
-  feat_strategy: 'tfidf' #'tfidf' or 'count'
+  feat_strategy: tfidf   #'tfidf' or 'count'
   binary: false # true or false
   max_features: null # null or int of total features to get
-  feat_fn: 'data/feat_df.pkl'
-  data_fn: 'data/data_df.csv'
-  vec_fn: 'data/vec.pkl'
+  feat_fn: data/feat_df.pkl
+  data_fn: data/data_df.csv
+  vec_fn: data/vec.pkl
 feat_eng:
   tfidf_dim: 20 # None or int to crop dimension, <= min(n_features, n_classes - 1)
   add_clust_feat: true # false or true - use several k position to predict cluster
-  topic_algo: 'lsa' # lsa or lda
+  topic_algo: lsa   # lsa or lda
   add_topic_feat: 20 # null or int - number of topics
-  feat_final_fn: 'data/feat_final_df.pkl'
+  feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
   chain: false # true use ClassifierChain, false - OneVsRestClassifier
-  model: 'boost' # tree, forest, knn, logreg, boost
-  metrics_fn: 'data/m.json'
-  model_fn: 'data/model.pkl'
+  model: logreg  # tree, forest, knn, logreg, boost
+  metrics_fn: data/m.json
+  model_fn: data/model.pkl
 seed: 0
- 
