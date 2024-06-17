@@ -19,11 +19,11 @@ feat_eng:
   tfidf_dim:    # null or int to crop dimension
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
-  add_topic_feat: 15 # null or int - number of topics
+  add_topic_feat: 20  # null or int - number of topics
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
   chain: false # true use ClassifierChain, false - OneVsRestClassifier
-  model: boost     # tree, forest, knn, logreg, boost
+  model: logreg    # tree, forest, knn, logreg, boost
   metrics_fn: data/m.json
   model_fn: data/model.pkl
 seed: 0
