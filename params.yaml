@@ -9,8 +9,8 @@ prep_text:
   prep_fn: 'data/prep_df.csv'
   mlb_fn: 'data/mlb.pkl'
 feat_gen:
-  feat_strategy: 'count' #'tfidf' or 'count'
-  binary: true # true or false
+  feat_strategy: 'tfidf' #'tfidf' or 'count'
+  binary: false # true or false
   max_features: null # null or int of total features to get
   feat_fn: 'data/feat_df.pkl'
   data_fn: 'data/data_df.csv'
