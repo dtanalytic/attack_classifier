@@ -44,7 +44,7 @@ stages:
       params.yaml:
         feat_gen.binary: false
         feat_gen.feat_strategy: tfidf
-        feat_gen.max_features:
+        feat_gen.max_features: 150
         seed: 0
     outs:
     - path: data/data_df.csv
@@ -53,12 +53,12 @@ stages:
       size: 367817
     - path: data/feat_df.pkl
       hash: md5
-      md5: 41c03b5fa216acb39d74d39f34348344
-      size: 15073911
+      md5: 5dfaee80dd16740de3077a1ff56602ab
+      size: 999985
     - path: data/vec.pkl
       hash: md5
-      md5: 88cd19048acbfbe33e02c15eee33df83
-      size: 45533
+      md5: 354cc85a49a85425f70d337fbfd66dd1
+      size: 5600
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
@@ -68,12 +68,12 @@ stages:
       size: 367817
     - path: data/feat_df.pkl
       hash: md5
-      md5: 41c03b5fa216acb39d74d39f34348344
-      size: 15073911
+      md5: 5dfaee80dd16740de3077a1ff56602ab
+      size: 999985
     - path: data/vec.pkl
       hash: md5
-      md5: 88cd19048acbfbe33e02c15eee33df83
-      size: 45533
+      md5: 354cc85a49a85425f70d337fbfd66dd1
+      size: 5600
     - path: src/feat_eng.py
       hash: md5
       md5: cb5ad3e2ba32d02abf7506459c21a957
@@ -81,22 +81,22 @@ stages:
     params:
       params.yaml:
         feat_eng.add_clust_feat: false
-        feat_eng.add_topic_feat: 7
+        feat_eng.add_topic_feat: 20
         feat_eng.tfidf_dim:
         feat_eng.topic_algo: lsa
         seed: 0
     outs:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: 6c31876624ac4e8b80945c8a255ad0fc
-      size: 15120684
+      md5: ae020ef8a03bdb279f737b19bf38b2c5
+      size: 1133430
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: 6c31876624ac4e8b80945c8a255ad0fc
-      size: 15120684
+      md5: ae020ef8a03bdb279f737b19bf38b2c5
+      size: 1133430
     - path: src/train_eval_model.py
       hash: md5
       md5: 163168582e2475e28eea83d6070e38e1
@@ -104,14 +104,14 @@ stages:
     params:
       params.yaml:
         seed: 0
-        train_eval_model.chain: false
-        train_eval_model.model: logreg
+        train_eval_model.chain: true
+        train_eval_model.model: forest
     outs:
     - path: data/m.json
       hash: md5
-      md5: 72c3002ad9e1e8b636672988bd8dfc7b
-      size: 138
+      md5: 8af0ef6a5270f3a33feccbcc8bada9b1
+      size: 141
     - path: data/model.pkl
       hash: md5
-      md5: fff1cf18e06b0af3882d0d12e30ac507
-      size: 997722
+      md5: 3bc65e3dcbb964260e7a17ff5bc579a7
+      size: 48824655

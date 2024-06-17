@@ -11,7 +11,7 @@ prep_text:
 feat_gen:
   feat_strategy: tfidf   #'tfidf' or 'count'
   binary: false # true or false
-  max_features:      # null or int of total features to get
+  max_features: 150  # null or int of total features to get
   feat_fn: data/feat_df.pkl
   data_fn: data/data_df.csv
   vec_fn: data/vec.pkl
@@ -22,8 +22,8 @@ feat_eng:
   add_topic_feat: 20  # null or int - number of topics
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
-  chain: false # true use ClassifierChain, false - OneVsRestClassifier
-  model: logreg    # tree, forest, knn, logreg, boost
+  chain: true # true use ClassifierChain, false - OneVsRestClassifier
+  model: forest    # tree, forest, knn, logreg, boost
   metrics_fn: data/m.json
   model_fn: data/model.pkl
 seed: 0
