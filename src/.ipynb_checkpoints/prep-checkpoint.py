@@ -30,6 +30,8 @@ def main(config_path):
 
     if conf['prep_text']['stop_words']:
         stop_words_l = set(stopwords.words('english'))
+    else:
+        stop_words_l = []
     
     data = pd.read_json('data/multi_label.json').drop(columns='doc_title')
 

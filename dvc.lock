@@ -5,12 +5,12 @@ stages:
     deps:
     - path: src/prep.py
       hash: md5
-      md5: c4b9b58ec18926a971564a6806bad51c
-      size: 1414
+      md5: 5d1fd4f859455b6eb2ed103a6c5a7d5c
+      size: 1500
     params:
       params.yaml:
         prep_text.labelled_text_only: true
-        prep_text.lower: true
+        prep_text.lower: false
         prep_text.max_len_token: 10
         prep_text.min_len_token: 3
         prep_text.save_only_words: false
@@ -23,8 +23,8 @@ stages:
       size: 1764
     - path: data/prep_df.csv
       hash: md5
-      md5: 4e3d36ab8e5593f2d3e0fa2d380b879a
-      size: 330864
+      md5: d498d8f4a11bbc01e9f3fc720192bbfc
+      size: 330843
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
@@ -34,8 +34,8 @@ stages:
       size: 1764
     - path: data/prep_df.csv
       hash: md5
-      md5: 4e3d36ab8e5593f2d3e0fa2d380b879a
-      size: 330864
+      md5: d498d8f4a11bbc01e9f3fc720192bbfc
+      size: 330843
     - path: src/feat_gen.py
       hash: md5
       md5: 1f9e14cb3a6cf31e3a798597c3ef70bb
@@ -49,31 +49,31 @@ stages:
     outs:
     - path: data/data_df.csv
       hash: md5
-      md5: fb1f3b502aea3ae846c0777f19df91d8
-      size: 344526
+      md5: c0d34602aca85791e0d378cf3ae51cf3
+      size: 344505
     - path: data/feat_df.pkl
       hash: md5
-      md5: 0fd42bfd0677a9a7285c6ebff4f2c086
-      size: 14627549
+      md5: 9ab0b77b6e289044b6e4b146cae535bf
+      size: 14600904
     - path: data/vec.pkl
       hash: md5
-      md5: 1ff026d67f5302e90e047cdce7891b06
-      size: 44319
+      md5: 34669696692f4325b642ca43b0928c13
+      size: 44250
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
     - path: data/data_df.csv
       hash: md5
-      md5: fb1f3b502aea3ae846c0777f19df91d8
-      size: 344526
+      md5: c0d34602aca85791e0d378cf3ae51cf3
+      size: 344505
     - path: data/feat_df.pkl
       hash: md5
-      md5: 0fd42bfd0677a9a7285c6ebff4f2c086
-      size: 14627549
+      md5: 9ab0b77b6e289044b6e4b146cae535bf
+      size: 14600904
     - path: data/vec.pkl
       hash: md5
-      md5: 1ff026d67f5302e90e047cdce7891b06
-      size: 44319
+      md5: 34669696692f4325b642ca43b0928c13
+      size: 44250
     - path: src/feat_eng.py
       hash: md5
       md5: cb5ad3e2ba32d02abf7506459c21a957
@@ -88,14 +88,14 @@ stages:
     outs:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: eb6b4d3c1f8131e78095ab6481204524
+      md5: 8a63b1b3770c71b895cab24235340e2d
       size: 301075
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: eb6b4d3c1f8131e78095ab6481204524
+      md5: 8a63b1b3770c71b895cab24235340e2d
       size: 301075
     - path: src/train_eval_model.py
       hash: md5
@@ -109,9 +109,9 @@ stages:
     outs:
     - path: data/m.json
       hash: md5
-      md5: c08ce052bf31a06e8134c57a6e08929d
-      size: 140
+      md5: 766c8af4b968121787107a630344dcdf
+      size: 138
     - path: data/model.pkl
       hash: md5
-      md5: 099b38af6c35bbe1919e7ffc4be33af1
+      md5: e14a8c5926affba5d0ef9d6f0f301d10
       size: 39673
