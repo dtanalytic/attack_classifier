@@ -41,6 +41,7 @@ stages:
       - feat_eng.add_clust_feat
       - feat_eng.topic_algo
       - feat_eng.add_topic_feat
+      - feat_eng.add_ind_cols
       - seed
       outs:
       - ${feat_eng.feat_final_fn}

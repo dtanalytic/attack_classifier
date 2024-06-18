@@ -65,7 +65,8 @@ def main(config_path):
     elif conf['train_eval_model']['model']=='forest':
         model = ExtraTreesClassifier(random_state=conf['seed'])
 
-    clf_pipe = make_pipeline(RobustScaler(), wrap_class(model))
+        
+    clf_pipe = make_pipeline(RobustScaler(), wrap_class(model, random_state=conf['seed'])) if conf['train_eval_model']['chain'] else make_pipeline(RobustScaler(), wrap_class(model))
     Y_train = mlb.transform(data.loc[tr_idx, 'labels'])
     clf_pipe.fit(feat_data.loc[tr_idx], Y_train)
     
