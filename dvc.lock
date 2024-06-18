@@ -82,42 +82,42 @@ stages:
       params.yaml:
         feat_eng.add_clust_feat: false
         feat_eng.add_ind_cols: false
-        feat_eng.add_topic_feat: 8
-        feat_eng.tfidf_dim: 1
+        feat_eng.add_topic_feat: true
+        feat_eng.tfidf_dim: 8
         feat_eng.topic_algo: lsa
         seed: 0
     outs:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: 0e54c53aea6c6d585827b1edda51a96a
-      size: 61017
+      md5: f867e8c38160277255be55da02f33876
+      size: 60962
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: 0e54c53aea6c6d585827b1edda51a96a
-      size: 61017
+      md5: f867e8c38160277255be55da02f33876
+      size: 60962
     - path: src/train_eval_model.py
       hash: md5
-      md5: ff805482ea4cc89c7bfce4ef91c91dd3
-      size: 3926
+      md5: 73327f048095adfcbd68f3108345b7ad
+      size: 3927
     params:
       params.yaml:
         seed: 0
         train_eval_model.balanced:
         train_eval_model.chain: true
-        train_eval_model.model: forest
+        train_eval_model.model: logreg
     outs:
     - path: data/m.json
       hash: md5
-      md5: 0410862170ce99d99798fa712813c08e
-      size: 125
+      md5: e0887aea84b895dec84fb3c63a4c5b9b
+      size: 138
     - path: data/model.pkl
       hash: md5
-      md5: 91e0fab8cafa54feab69b02269998ad1
-      size: 74904495
+      md5: 6b2735a61f514a460c911fbd83c66ca7
+      size: 34751
     - path: data/old_m.json
       hash: md5
-      md5: dc2f7741bb8c119bf8d9c918967cfdfe
-      size: 127
+      md5: 95c4cc8b4aa33a6f724c021574a29ca4
+      size: 140

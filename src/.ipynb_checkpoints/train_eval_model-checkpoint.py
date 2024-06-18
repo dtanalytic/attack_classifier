@@ -56,7 +56,7 @@ def main(config_path):
 
         
     if conf['train_eval_model']['model']=='logreg':
-        model = LogisticRegression(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'], max_iter=1000)
+        model = LogisticRegression(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'], max_iter=10000)
     elif conf['train_eval_model']['model']=='tree':
         model = DecisionTreeClassifier(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'])
     elif conf['train_eval_model']['model']=='boost':
