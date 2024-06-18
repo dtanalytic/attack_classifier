@@ -7,7 +7,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.multioutput import ClassifierChain
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import RobustScaler
-from sklearn.metrics import log_loss, roc_auc_score
+from sklearn.metrics import log_loss, roc_auc_score, average_precision_score
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -54,16 +54,17 @@ def main(config_path):
     else:
         wrap_class = OneVsRestClassifier
 
+        
     if conf['train_eval_model']['model']=='logreg':
-        model = LogisticRegression(random_state=conf['seed'], max_iter=1000)
+        model = LogisticRegression(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'], max_iter=1000)
     elif conf['train_eval_model']['model']=='tree':
-        model = DecisionTreeClassifier(random_state=conf['seed'])
+        model = DecisionTreeClassifier(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'])
     elif conf['train_eval_model']['model']=='boost':
-        model = HistGradientBoostingClassifier(random_state=conf['seed'])
+        model = HistGradientBoostingClassifier(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'])
     elif conf['train_eval_model']['model']=='knn':
-        model = KNeighborsClassifier()    
+        model = KNeighborsClassifier(class_weight=conf['train_eval_model']['balanced'])    
     elif conf['train_eval_model']['model']=='forest':
-        model = ExtraTreesClassifier(random_state=conf['seed'])
+        model = ExtraTreesClassifier(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'])
 
         
     clf_pipe = make_pipeline(RobustScaler(), wrap_class(model, random_state=conf['seed'])) if conf['train_eval_model']['chain'] else make_pipeline(RobustScaler(), wrap_class(model))
@@ -74,17 +75,20 @@ def main(config_path):
     
     tr_roc_auc, _ = metric_multi(Y_train, Y_tr_proba, roc_auc_score)
     tr_logloss, _ = metric_multi(Y_train, Y_tr_proba, log_loss, labels=[0,1])
+    tr_pr_auc, _ = metric_multi(Y_train, Y_tr_proba, average_precision_score)
     
     Y_proba = clf_pipe.predict_proba(feat_data.loc[val_idx])
     Y_true = mlb.transform(data.loc[val_idx, 'labels'])
     
     roc_auc, _ = metric_multi(Y_true, Y_proba, roc_auc_score)
     logloss, _ = metric_multi(Y_true, Y_proba, log_loss, labels=[0,1])
-    
+    pr_auc, _ = metric_multi(Y_true, Y_proba, average_precision_score)
 
-    with open(conf['train_eval_model']['metrics_fn'], 'wt') as f_wr:
+    with open(conf['train_eval_model']['add_metrics_fn'], 'wt') as f_wr:
         json.dump({'val_roc_auc':roc_auc, 'val_logloss':logloss, 'tr_roc_auc':tr_roc_auc, 'tr_logloss':tr_logloss}, f_wr)
-
+        
+    with open(conf['train_eval_model']['metrics_fn'], 'wt') as f_wr:
+        json.dump({'val_pr_auc':pr_auc, 'val_logloss':logloss, 'tr_pr_auc':tr_pr_auc, 'tr_logloss':tr_logloss}, f_wr)
 
     joblib.dump(clf_pipe, conf['train_eval_model']['model_fn'])
     

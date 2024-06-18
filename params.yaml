@@ -20,11 +20,13 @@ feat_eng:
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
   add_topic_feat: 8   # null or int - number of topics
-  add_ind_cols: true # true or false, whether to add cols with T...
+  add_ind_cols: false # true or false, whether to add cols with T...
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
   chain: true # true use ClassifierChain, false - OneVsRestClassifier
-  model: logreg    # tree, forest, knn, logreg, boost
+  model: forest    # tree, forest, knn, logreg, boost
+  balanced:          # balanced or null
   metrics_fn: data/m.json
+  add_metrics_fn: data/old_m.json
   model_fn: data/model.pkl
 seed: 0

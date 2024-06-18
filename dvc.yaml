@@ -53,8 +53,10 @@ stages:
       params:
       - train_eval_model.chain
       - train_eval_model.model
+      - train_eval_model.balanced
       - seed
       metrics:
       - ${train_eval_model.metrics_fn}
       outs:
       - ${train_eval_model.model_fn}
+      - ${train_eval_model.add_metrics_fn}
