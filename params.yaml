@@ -11,19 +11,20 @@ prep_text:
 feat_gen:
   feat_strategy: tfidf   #'tfidf' or 'count'
   binary: false # true or false
-  max_features: 150  # null or int of total features to get
+  max_features:  # null or int of total features to get
   feat_fn: data/feat_df.pkl
   data_fn: data/data_df.csv
   vec_fn: data/vec.pkl
 feat_eng:
-  tfidf_dim:    # null or int to crop dimension
+  tfidf_dim: 10 # null or int to crop dimension
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
   add_topic_feat: 20  # null or int - number of topics
+  add_ind_cols: true # true or false, whether to add cols with T...
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
   chain: true # true use ClassifierChain, false - OneVsRestClassifier
-  model: forest    # tree, forest, knn, logreg, boost
+  model: logreg    # tree, forest, knn, logreg, boost
   metrics_fn: data/m.json
   model_fn: data/model.pkl
 seed: 0

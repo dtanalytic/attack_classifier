@@ -6,10 +6,15 @@ from sklearn.cluster import KMeans
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import LatentDirichletAllocation, TruncatedSVD, NMF
+from sklearn.feature_extraction.text import CountVectorizer
+
+
 from ruamel.yaml import YAML
 
 import sys
 sys.path.append('.')
+from src.feat_gen import custom_tok
+
 
 @click.command()
 @click.argument('config_path')
@@ -50,6 +55,16 @@ def main(config_path):
         feat_topic_add = pd.DataFrame(topic_algo.transform(feat_data), index=feat_data.index, columns=topic_algo.get_feature_names_out())   
         feat_data_new = feat_data_new.join(feat_topic_add)
     
+    if conf['feat_eng']['add_ind_cols']:
+        data['labels'] = data['labels'].map(lambda x: eval(x))
+        data['threat_words'] = data['threat_words'].map(lambda x: eval(x))
+        data['threat_words'] = data['threat_words'].apply(lambda x: ' '.join(x))
+        
+        vec = CountVectorizer(tokenizer=custom_tok, binary=True, min_df=1)
+        vec.fit(data.loc[data['train']==1, 'threat_words'])
+
+        feat_ind = pd.DataFrame(vec.transform(data['threat_words']).toarray(), columns=vec.get_feature_names_out())
+        feat_data_new = feat_data_new.join(feat_ind)
     
     joblib.dump(feat_data_new, conf['feat_eng']['feat_final_fn'])
 
