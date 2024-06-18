@@ -17,9 +17,9 @@ feat_gen:
   vec_fn: data/vec.pkl
 feat_eng:
   tfidf_dim: 8  # null or int to crop dimension
-  add_clust_feat: false # false or true - use several k position to predict cluster
+  add_clust_feat: true # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
-  add_topic_feat: true  # null or int - number of topics
+  add_topic_feat: 8   # null or int - number of topics
   add_ind_cols: false # true or false, whether to add cols with T...
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
