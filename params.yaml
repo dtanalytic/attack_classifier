@@ -19,7 +19,7 @@ feat_eng:
   tfidf_dim: 1  # null or int to crop dimension
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
-  add_topic_feat: 20  # null or int - number of topics
+  add_topic_feat: 8   # null or int - number of topics
   add_ind_cols: true # true or false, whether to add cols with T...
   feat_final_fn: data/feat_final_df.pkl
 train_eval_model:
