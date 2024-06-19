@@ -33,7 +33,7 @@ def main(config_path):
     # добавление новых признаков
     # здесь же можно подумать о чистке    
     data['threat_words'] = data['sentence'].str.findall('\((T[\d\.]+)\)')
-    # data['prep_text'] = data[['prep_text', 'threat_words']].apply(lambda x: ' '.join(x['threat_words']) + f' {x["prep_text"]}' , axis=1)
+    data['prep_text'] = data[['prep_text', 'threat_words']].apply(lambda x: ' '.join(x['threat_words']) + f' {x["prep_text"]}' , axis=1)
 
     
     if conf['feat_gen']['feat_strategy'] == 'tfidf':
