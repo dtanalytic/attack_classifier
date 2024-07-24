@@ -5,11 +5,12 @@ stages:
     deps:
     - path: src/prep.py
       hash: md5
-      md5: 5d1fd4f859455b6eb2ed103a6c5a7d5c
-      size: 1500
+      md5: 8c2f160d8c659a5690b3a39262893ff7
+      size: 1505
     params:
       params.yaml:
-        prep_text.labelled_text_only: true
+        prep_text.data_fn: data/mitre_full_df.pkl
+        prep_text.labelled_text_only: false
         prep_text.lower: false
         prep_text.max_len_token: 10
         prep_text.min_len_token: 3
@@ -19,89 +20,90 @@ stages:
     outs:
     - path: data/mlb.pkl
       hash: md5
-      md5: 08a80aca9b7512e7605918bfeee704fa
-      size: 1764
+      md5: 59aa9a82e455e7fed9a95b929105bcb9
+      size: 1386
     - path: data/prep_df.csv
       hash: md5
-      md5: a78d112da14c908fa24682302c321981
-      size: 354155
+      md5: 1f4e51a6e1a106c77979d590ef8da37f
+      size: 10172005
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
     - path: data/mlb.pkl
       hash: md5
-      md5: 08a80aca9b7512e7605918bfeee704fa
-      size: 1764
+      md5: 59aa9a82e455e7fed9a95b929105bcb9
+      size: 1386
     - path: data/prep_df.csv
       hash: md5
-      md5: a78d112da14c908fa24682302c321981
-      size: 354155
+      md5: 1f4e51a6e1a106c77979d590ef8da37f
+      size: 10172005
     - path: src/feat_gen.py
       hash: md5
-      md5: db72f14341196d36d39ac5762dd50402
-      size: 2412
+      md5: 668f3b30648b49301b8dad95f52505a5
+      size: 3034
     params:
       params.yaml:
         feat_gen.binary: false
         feat_gen.feat_strategy: tfidf
         feat_gen.max_features:
         seed: 0
+        val_ts_size: 0.15
     outs:
     - path: data/data_df.csv
       hash: md5
-      md5: 016fb16a5bf3c75aa902a557ad441c4b
-      size: 367817
+      md5: 0dc4460547eafe1d347b63ed348f0ab4
+      size: 11920360
     - path: data/feat_df.pkl
       hash: md5
-      md5: 41c03b5fa216acb39d74d39f34348344
-      size: 15073911
+      md5: f62d4849043a2b6c3969155687d6422e
+      size: 4339821867
     - path: data/vec.pkl
       hash: md5
-      md5: dc069252bfd5f25107b2b4decaa66025
-      size: 45533
+      md5: 57e48af33a8a680ef32bc157b0091a39
+      size: 328544
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
     - path: data/data_df.csv
       hash: md5
-      md5: 016fb16a5bf3c75aa902a557ad441c4b
-      size: 367817
+      md5: 0dc4460547eafe1d347b63ed348f0ab4
+      size: 11920360
     - path: data/feat_df.pkl
       hash: md5
-      md5: 41c03b5fa216acb39d74d39f34348344
-      size: 15073911
+      md5: f62d4849043a2b6c3969155687d6422e
+      size: 4339821867
     - path: data/vec.pkl
       hash: md5
-      md5: dc069252bfd5f25107b2b4decaa66025
-      size: 45533
+      md5: 57e48af33a8a680ef32bc157b0091a39
+      size: 328544
     - path: src/feat_eng.py
       hash: md5
-      md5: 13ddb8d8273a4b4b30210b79e0fa0df8
-      size: 2993
+      md5: 41eded47813defc2991a4fd1564df9a4
+      size: 2998
     params:
       params.yaml:
         feat_eng.add_clust_feat: false
         feat_eng.add_ind_cols: false
         feat_eng.add_topic_feat: 15
-        feat_eng.tfidf_dim: 8
+        feat_eng.tfidf_dim:
         feat_eng.topic_algo: lsa
         seed: 0
     outs:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: a22be1ad3defd5a946f3e6bde1626da9
-      size: 154319
+      md5: c8bfe33e317a3553425d3faf7c80e2a8
+      size: 4343846613
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/feat_final_df.pkl
       hash: md5
-      md5: a22be1ad3defd5a946f3e6bde1626da9
-      size: 154319
+      md5: 30917dfcfe101d4e7432ca4735e49115
+      size: 7513740
     - path: src/train_eval_model.py
       hash: md5
-      md5: 73327f048095adfcbd68f3108345b7ad
-      size: 3927
+      md5: 40432acc0bfdfe5e23010f36846b26ce
+      size: 4336
     params:
       params.yaml:
         seed: 0
@@ -111,13 +113,13 @@ stages:
     outs:
     - path: data/m.json
       hash: md5
-      md5: 90df45a31f3b8558f1575622febcca36
-      size: 137
+      md5: 0e0956128665d50dc950715aff84fe76
+      size: 139
     - path: data/model.pkl
       hash: md5
-      md5: fda5c59788dcdfe2c2011697b123173a
-      size: 40847
+      md5: 559cde5360014d835f745dd06ee8bab3
+      size: 11631
     - path: data/old_m.json
       hash: md5
-      md5: de3d5e268103a5d58684c0b83234e528
-      size: 138
+      md5: 0eb250f772c6ddb65875b4fb8afc5163
+      size: 139

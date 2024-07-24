@@ -20,12 +20,22 @@ from ruamel.yaml import YAML
 import sys
 sys.path.append('.')
 
-def metric_multi(y, y_pred, metric_fn, **kwargs):
+def metric_multi(y, y_pred, metric_fn, ignore_const_target=True, **kwargs):
   metric_l = []
   for i in range(y.shape[1]):
-    if len(set(y[:, i]))!=1:
-        metric = metric_fn(y[:, i], y_pred[:,i], **kwargs)
+    if ignore_const_target:
+        # if len(set(y[:, i]))!=1:
+        if set(y[:, i])!={0}:
+            metric = metric_fn(y[:, i], y_pred[:,i], **kwargs)
+            metric_l.append(metric)
+        elif (y_pred[:, i]>0.5).sum()>0:
+            metric_l.append(0)
+        else:
+            metric_l.append(1)
+    else:
+        metric = metric_fn(y[:, i], y_pred[:,i], labels=[0,1], **kwargs)
         metric_l.append(metric)
+
 
   return np.mean(metric_l), metric_l
 
@@ -42,11 +52,11 @@ def main(config_path):
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['feat_gen']['data_fn'])
     
-    data['labels'] = data['labels'].map(lambda x: eval(x))
+    data['target'] = data['target'].map(lambda x: eval(x))
     
-    tr_idx = data.query('train==1').index
-    val_idx = data.query('valid==1').index
-    ts_idx = data.query('test==1').index
+    tr_idx = data.query('split=="tr"').index
+    val_idx = data.query('split=="val"').index
+    ts_idx = data.query('split=="ts"').index
     
     
     if conf['train_eval_model']['chain']:
@@ -68,18 +78,24 @@ def main(config_path):
 
         
     clf_pipe = make_pipeline(RobustScaler(), wrap_class(model, random_state=conf['seed'])) if conf['train_eval_model']['chain'] else make_pipeline(RobustScaler(), wrap_class(model))
-    Y_train = mlb.transform(data.loc[tr_idx, 'labels'])
-    clf_pipe.fit(feat_data.loc[tr_idx], Y_train)
+        
+    
+    Y_train = np.array(data.loc[tr_idx, 'target'].values.tolist())
+
+    clf_pipe.fit(feat_data.loc[tr_idx].values, Y_train)
     
     Y_tr_proba = clf_pipe.predict_proba(feat_data.loc[tr_idx])
+
+    
     
     tr_roc_auc, _ = metric_multi(Y_train, Y_tr_proba, roc_auc_score)
     tr_logloss, _ = metric_multi(Y_train, Y_tr_proba, log_loss, labels=[0,1])
     tr_pr_auc, _ = metric_multi(Y_train, Y_tr_proba, average_precision_score)
     
     Y_proba = clf_pipe.predict_proba(feat_data.loc[val_idx])
-    Y_true = mlb.transform(data.loc[val_idx, 'labels'])
+    Y_true = np.array(data.loc[val_idx, 'target'].values.tolist())
     
+
     roc_auc, _ = metric_multi(Y_true, Y_proba, roc_auc_score)
     logloss, _ = metric_multi(Y_true, Y_proba, log_loss, labels=[0,1])
     pr_auc, _ = metric_multi(Y_true, Y_proba, average_precision_score)

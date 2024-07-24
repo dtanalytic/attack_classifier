@@ -28,7 +28,8 @@ def main(config_path):
     feat_data = joblib.load(conf['feat_gen']['feat_fn'])
 
 
-    tr_idx = data.query('train==1').index
+    tr_idx = data.query('split=="tr"').index
+
 
     if conf['feat_eng']['tfidf_dim']:
         nmf = NMF(n_components=conf['feat_eng']['tfidf_dim'], random_state=conf['seed'])
@@ -56,7 +57,7 @@ def main(config_path):
         feat_data_new = feat_data_new.join(feat_topic_add)
     
     if conf['feat_eng']['add_ind_cols']:
-        data['labels'] = data['labels'].map(lambda x: eval(x))
+        data['target'] = data['target'].map(lambda x: eval(x))
         data['threat_words'] = data['threat_words'].map(lambda x: eval(x))
         data['threat_words'] = data['threat_words'].apply(lambda x: ' '.join(x))
         

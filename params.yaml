@@ -5,7 +5,8 @@ prep_text:
   max_len_token: 10
   save_only_words: false
   stem_lemm: stem    # stem or null
-  labelled_text_only: true
+  labelled_text_only: false
+  data_fn: data/mitre_full_df.pkl
   prep_fn: data/prep_df.csv
   mlb_fn: data/mlb.pkl
 feat_gen:
@@ -16,7 +17,7 @@ feat_gen:
   data_fn: data/data_df.csv
   vec_fn: data/vec.pkl
 feat_eng:
-  tfidf_dim: 8  # null or int to crop dimension
+  tfidf_dim: null  # null or int to crop dimension
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
   add_topic_feat: 15  # null or int - number of topics
@@ -30,3 +31,4 @@ train_eval_model:
   add_metrics_fn: data/old_m.json
   model_fn: data/model.pkl
 seed: 0
+val_ts_size: 0.15

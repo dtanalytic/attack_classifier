@@ -8,6 +8,7 @@ stages:
     - prep_text.stop_words
     - prep_text.min_len_token
     - prep_text.max_len_token
+    - prep_text.data_fn
     - prep_text.save_only_words
     - prep_text.stem_lemm
     - prep_text.labelled_text_only
@@ -23,6 +24,7 @@ stages:
     params:
     - feat_gen.feat_strategy
     - feat_gen.binary
+    - val_ts_size
     - feat_gen.max_features
     - seed
     outs:

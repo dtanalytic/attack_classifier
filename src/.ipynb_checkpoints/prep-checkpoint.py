@@ -12,7 +12,6 @@ from ruamel.yaml import YAML
 import sys
 sys.path.append('.')
 from src.funcs import preprocess_text
-from src.constants import CLASSES
 
 
 pandarallel.initialize(progress_bar=True, nb_workers=0)
@@ -24,16 +23,12 @@ def main(config_path):
     conf = YAML().load(open(config_path))
 
 
-    mlb = MultiLabelBinarizer(classes=CLASSES)
-    mlb.fit([[c] for c in CLASSES])
-    joblib.dump(mlb, conf['prep_text']['mlb_fn'])
-
     if conf['prep_text']['stop_words']:
         stop_words_l = set(stopwords.words('english'))
     else:
         stop_words_l = []
     
-    data = pd.read_json('data/multi_label.json').drop(columns='doc_title')
+    data = joblib.load(conf['prep_text']['data_fn'])
 
     if conf['prep_text']['labelled_text_only']:
         data = data[data['labels'].str.len()>1]
@@ -44,7 +39,12 @@ def main(config_path):
         lang='english'))
     
     data.to_csv(conf['prep_text']['prep_fn'], index=False)
-    
+
+    CLASSES = data.explode('labels')['labels'].dropna().unique()
+
+    mlb = MultiLabelBinarizer(classes=CLASSES)
+    mlb.fit([[c] for c in CLASSES])
+    joblib.dump(mlb, conf['prep_text']['mlb_fn'])
 
 if __name__=='__main__':
 
