@@ -48,7 +48,9 @@ def main(config_path):
     conf = YAML().load(open(config_path))
     np.random.seed(conf['seed'])
     
-    feat_data = joblib.load(conf['feat_eng']['feat_final_fn'])
+    # feat_data = joblib.load(conf['feat_eng']['feat_final_fn'])
+    feat_data = pd.read_csv(conf['feat_eng']['feat_final_fn'])
+    
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['feat_gen']['data_fn'])
     

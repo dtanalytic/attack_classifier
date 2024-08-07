@@ -22,14 +22,14 @@ def main(config_path):
     
     conf = YAML().load(open(config_path))
 
-
     if conf['prep_text']['stop_words']:
         stop_words_l = set(stopwords.words('english'))
     else:
         stop_words_l = []
     
-    data = joblib.load(conf['prep_text']['data_fn'])
-
+    # data = joblib.load(conf['get_data']['data_fn'])
+    data = pd.read_csv(conf['get_data']['data_filt_fn'])
+    data['labels'] = data['labels'].map(lambda x: eval(x)) 
     if conf['prep_text']['labelled_text_only']:
         data = data[data['labels'].str.len()>1]
 

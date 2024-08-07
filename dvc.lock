@@ -3,13 +3,16 @@ stages:
   text_preprocess:
     cmd: python src/prep.py params.yaml
     deps:
+    - path: data/interim/mitre_full_filt_df.csv
+      hash: md5
+      md5: 3797b04e7870d82771e8a5a177929fa4
+      size: 4185429
     - path: src/prep.py
       hash: md5
-      md5: 8c2f160d8c659a5690b3a39262893ff7
-      size: 1505
+      md5: 7f1e21de0d703b9273ee723d60049f6f
+      size: 1621
     params:
       params.yaml:
-        prep_text.data_fn: data/mitre_full_df.pkl
         prep_text.labelled_text_only: false
         prep_text.lower: false
         prep_text.max_len_token: 10
@@ -18,92 +21,96 @@ stages:
         prep_text.stem_lemm: stem
         prep_text.stop_words: false
     outs:
-    - path: data/mlb.pkl
+    - path: data/interim/mlb.pkl
       hash: md5
       md5: 59aa9a82e455e7fed9a95b929105bcb9
       size: 1386
-    - path: data/prep_df.csv
+    - path: data/interim/prep_df.csv
       hash: md5
-      md5: 1f4e51a6e1a106c77979d590ef8da37f
-      size: 10172005
+      md5: ae469c61ce89c9f45b68a235a4ddcbc6
+      size: 6165178
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
-    - path: data/mlb.pkl
+    - path: data/interim/mlb.pkl
       hash: md5
       md5: 59aa9a82e455e7fed9a95b929105bcb9
       size: 1386
-    - path: data/prep_df.csv
+    - path: data/interim/prep_df.csv
       hash: md5
-      md5: 1f4e51a6e1a106c77979d590ef8da37f
-      size: 10172005
+      md5: ae469c61ce89c9f45b68a235a4ddcbc6
+      size: 6165178
     - path: src/feat_gen.py
       hash: md5
-      md5: 668f3b30648b49301b8dad95f52505a5
-      size: 3034
+      md5: 73859c049671e24e2d9ec07f51115c30
+      size: 6903
     params:
       params.yaml:
         feat_gen.binary: false
         feat_gen.feat_strategy: tfidf
+        feat_gen.logreg_c: 0.3
+        feat_gen.max_df: 0.2
         feat_gen.max_features:
+        feat_gen.min_df: 10
+        feat_gen.tree_maxdepth: 7
         seed: 0
         val_ts_size: 0.15
     outs:
-    - path: data/data_df.csv
+    - path: data/interim/data_df.csv
       hash: md5
-      md5: 0dc4460547eafe1d347b63ed348f0ab4
-      size: 11920360
-    - path: data/feat_df.pkl
+      md5: d6a960eceda8ff3c43de7f0767147b2c
+      size: 6914220
+    - path: data/interim/feat_df.csv
       hash: md5
-      md5: f62d4849043a2b6c3969155687d6422e
-      size: 4339821867
-    - path: data/vec.pkl
+      md5: 11343ba50d063e332211b46f1491908f
+      size: 12895248
+    - path: data/interim/vec.pkl
       hash: md5
-      md5: 57e48af33a8a680ef32bc157b0091a39
-      size: 328544
+      md5: b3b563ef5444ebcf931947e065dc3b3b
+      size: 199888
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
-    - path: data/data_df.csv
+    - path: data/interim/data_df.csv
       hash: md5
-      md5: 0dc4460547eafe1d347b63ed348f0ab4
-      size: 11920360
-    - path: data/feat_df.pkl
+      md5: d6a960eceda8ff3c43de7f0767147b2c
+      size: 6914220
+    - path: data/interim/feat_df.csv
       hash: md5
-      md5: f62d4849043a2b6c3969155687d6422e
-      size: 4339821867
-    - path: data/vec.pkl
+      md5: 11343ba50d063e332211b46f1491908f
+      size: 12895248
+    - path: data/interim/vec.pkl
       hash: md5
-      md5: 57e48af33a8a680ef32bc157b0091a39
-      size: 328544
+      md5: b3b563ef5444ebcf931947e065dc3b3b
+      size: 199888
     - path: src/feat_eng.py
       hash: md5
-      md5: 41eded47813defc2991a4fd1564df9a4
-      size: 2998
+      md5: 28f6651aa73810499fdb86d2e418e8f5
+      size: 3130
     params:
       params.yaml:
         feat_eng.add_clust_feat: false
         feat_eng.add_ind_cols: false
-        feat_eng.add_topic_feat: 15
+        feat_eng.add_topic_feat:
         feat_eng.tfidf_dim:
         feat_eng.topic_algo: lsa
         seed: 0
     outs:
-    - path: data/feat_final_df.pkl
+    - path: data/out/feat_final_df.csv
       hash: md5
-      md5: c8bfe33e317a3553425d3faf7c80e2a8
-      size: 4343846613
+      md5: 37e5353545884e7a2705aa6b8c21994b
+      size: 12827058
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
-    - path: data/feat_final_df.pkl
+    - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 30917dfcfe101d4e7432ca4735e49115
-      size: 7513740
+      md5: 37e5353545884e7a2705aa6b8c21994b
+      size: 12827058
     - path: src/train_eval_model.py
       hash: md5
-      md5: 40432acc0bfdfe5e23010f36846b26ce
-      size: 4336
+      md5: 49c276449e67d2a7510ba7536550a72f
+      size: 4408
     params:
       params.yaml:
         seed: 0
@@ -111,15 +118,89 @@ stages:
         train_eval_model.chain: true
         train_eval_model.model: logreg
     outs:
-    - path: data/m.json
+    - path: data/out/m.json
       hash: md5
-      md5: 0e0956128665d50dc950715aff84fe76
-      size: 139
-    - path: data/model.pkl
+      md5: 7807620e7f0b0eb6aadf4ec57df84150
+      size: 138
+    - path: data/out/model.pkl
       hash: md5
-      md5: 559cde5360014d835f745dd06ee8bab3
-      size: 11631
-    - path: data/old_m.json
+      md5: 75b490808ddfb47f67ce750dc81066cb
+      size: 33519
+    - path: data/out/old_m.json
       hash: md5
-      md5: 0eb250f772c6ddb65875b4fb8afc5163
-      size: 139
+      md5: ebe62126af89bce045c9f580c65c5dad
+      size: 140
+  get_mitre_data:
+    cmd: python src/get_mitre_data.py params.yaml
+    deps:
+    - path: src/get_mitre_data.py
+      hash: md5
+      md5: 54444b7832e3455a705be4544648b5c9
+      size: 5045
+    params:
+      params.yaml:
+        get_data.mitre_attack_fn: data/external/enterprise-attack.json
+    outs:
+    - path: data/interim/label2tactic.json
+      hash: md5
+      md5: 5189286c02d7aa1ba4b5542d14a5f4aa
+      size: 24536
+    - path: data/interim/mitre.csv
+      hash: md5
+      md5: 398b9cbb6b230f3daf3ae43e3f7a97f9
+      size: 8114977
+    - path: data/interim/mitre_attack.csv
+      hash: md5
+      md5: 33f0074e259ab4c04754110e0d282191
+      size: 3805774
+  get_add_data:
+    cmd: python src/get_add_data.py params.yaml
+    deps:
+    - path: data/interim/label2tactic.json
+      hash: md5
+      md5: 5189286c02d7aa1ba4b5542d14a5f4aa
+      size: 24536
+    - path: data/interim/mitre.csv
+      hash: md5
+      md5: 398b9cbb6b230f3daf3ae43e3f7a97f9
+      size: 8114977
+    - path: data/interim/mitre_attack.csv
+      hash: md5
+      md5: 33f0074e259ab4c04754110e0d282191
+      size: 3805774
+    - path: src/get_add_data.py
+      hash: md5
+      md5: 9ba7fc4711d18cccf179354044f85d11
+      size: 1874
+    params:
+      params.yaml:
+        get_data.add_empty_reports: false
+        get_data.data_fn: data/interim/mitre_full_df.csv
+        get_data.mitre_alt_fn: data/external/dataset.txt
+        get_data.rep_dn: data/external/rep_dn
+        get_data.target: tactic
+        get_data.tram_fn: data/external/multi_label.json
+        get_data.use_alt_mitre: false
+        get_data.use_reports_f: false
+        get_data.use_tram_f: false
+    outs:
+    - path: data/interim/mitre_full_df.csv
+      hash: md5
+      md5: ea795efd6c97f18775aa91ce14670d7f
+      size: 4182024
+  manual_data_filter:
+    cmd: python src/manual_data_filter.py params.yaml
+    deps:
+    - path: data/interim/mitre_full_df.csv
+      hash: md5
+      md5: ea795efd6c97f18775aa91ce14670d7f
+      size: 4182024
+    - path: src/manual_data_filter.py
+      hash: md5
+      md5: da91c10e74fecef2c77f97ac086ebd36
+      size: 935
+    outs:
+    - path: data/interim/mitre_full_filt_df.csv
+      hash: md5
+      md5: 3797b04e7870d82771e8a5a177929fa4
+      size: 4185429

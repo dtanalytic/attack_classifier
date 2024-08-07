@@ -1,14 +1,50 @@
 stages:
+  get_mitre_data:
+    cmd: python src/get_mitre_data.py params.yaml
+    deps:
+    - src/get_mitre_data.py
+    params:
+    - get_data.mitre_attack_fn
+    outs:
+    - ${get_data.data_mitre_fn}
+    - ${get_data.data_mitre_attack_proc_fn}
+    - ${get_data.label2tactic_fn}
+  get_add_data:
+    cmd: python src/get_add_data.py params.yaml
+    deps:
+    - ${get_data.data_mitre_fn}
+    - ${get_data.data_mitre_attack_proc_fn}
+    - ${get_data.label2tactic_fn}
+    - src/get_add_data.py
+    params:
+    - get_data.tram_fn
+    - get_data.rep_dn
+    - get_data.mitre_alt_fn
+    - get_data.use_tram_f
+    - get_data.use_reports_f
+    - get_data.add_empty_reports
+    - get_data.use_alt_mitre
+    - get_data.target
+    - get_data.data_fn
+    outs:
+    - ${get_data.data_fn}
+  manual_data_filter:
+    cmd: python src/manual_data_filter.py params.yaml
+    deps:
+    - ${get_data.data_fn}
+    - src/manual_data_filter.py
+    outs:
+    - ${get_data.data_filt_fn}
   text_preprocess:
     cmd: python src/prep.py params.yaml
     deps:
     - src/prep.py
+    - ${get_data.data_filt_fn}
     params:
     - prep_text.lower
     - prep_text.stop_words
     - prep_text.min_len_token
     - prep_text.max_len_token
-    - prep_text.data_fn
     - prep_text.save_only_words
     - prep_text.stem_lemm
     - prep_text.labelled_text_only
@@ -26,6 +62,10 @@ stages:
     - feat_gen.binary
     - val_ts_size
     - feat_gen.max_features
+    - feat_gen.min_df
+    - feat_gen.max_df
+    - feat_gen.logreg_c
+    - feat_gen.tree_maxdepth
     - seed
     outs:
     - ${feat_gen.feat_fn}

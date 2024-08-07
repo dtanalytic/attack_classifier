@@ -25,8 +25,8 @@ def main(config_path):
     
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['feat_gen']['data_fn'])
-    feat_data = joblib.load(conf['feat_gen']['feat_fn'])
-
+    # feat_data = joblib.load(conf['feat_gen']['feat_fn'])
+    feat_data = pd.read_csv(conf['feat_gen']['feat_fn'])
 
     tr_idx = data.query('split=="tr"').index
 
@@ -67,8 +67,8 @@ def main(config_path):
         feat_ind = pd.DataFrame(vec.transform(data['threat_words']).toarray(), columns=vec.get_feature_names_out())
         feat_data_new = feat_data_new.join(feat_ind)
     
-    joblib.dump(feat_data_new, conf['feat_eng']['feat_final_fn'])
-
+    # joblib.dump(feat_data_new, conf['feat_eng']['feat_final_fn'])
+    feat_data_new.to_csv(conf['feat_eng']['feat_final_fn'], index=False)
     
     
 if __name__=='__main__':
