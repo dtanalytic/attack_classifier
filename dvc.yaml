@@ -5,6 +5,7 @@ stages:
     - src/get_mitre_data.py
     params:
     - get_data.mitre_attack_fn
+    - get_data.divide_paras
     outs:
     - ${get_data.data_mitre_fn}
     - ${get_data.data_mitre_attack_proc_fn}
@@ -96,9 +97,14 @@ stages:
       - train_eval_model.chain
       - train_eval_model.model
       - train_eval_model.balanced
+      - train_eval_model.opt_metric
       - seed
       metrics:
       - ${train_eval_model.metrics_fn}
       outs:
+      - ${train_eval_model.opt_metric_fn}
+      - ${train_eval_model.by_class_metric_fn}
+      - ${train_eval_model.conf_df_fn}
+      - ${train_eval_model.conf_matrix_fn}
       - ${train_eval_model.model_fn}
       - ${train_eval_model.add_metrics_fn}

@@ -71,6 +71,11 @@ def main(config_path):
                       .rename(columns={'proc_descr':'sentence'})\
                       .assign(is_proc=True)
     main_descr_df = mitre_df[['id', 'name', 'url', 'labels', 'sentence', 'kill_chain_tags', 'subtechnique', 'par_name']].assign(is_proc=False)
+    
+    if conf['get_data']['divide_paras']:
+        main_descr_df['sentence'] = main_descr_df['sentence'].str.split('\n')
+        main_descr_df = main_descr_df.explode('sentence').loc[lambda x: x['sentence'].str.len()>0]
+        
     mitre_attack_df = pd.concat([main_descr_df, proc_df], ignore_index=True)
     
     # удаляем строки, где процедуры не было совсем

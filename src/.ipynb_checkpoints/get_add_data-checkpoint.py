@@ -28,6 +28,9 @@ def main(config_path):
     mitr_alt_data['labels'] = mitr_alt_data[['label_subtec', 'label_tec']].apply(lambda x: list(set((x[0], x[1]))), axis=1)
     mitr_alt_data = mitr_alt_data[['sentence', 'labels']]
 
+    par_d = mitre_attack_df.explode('labels').set_index('labels')['par_name'].to_dict()
+    mitr_alt_data['par_name'] = mitr_alt_data['labels'].map(lambda x: sorted([par_d[it] if it in par_d and len(it)>6 else '' for it in x])[-1])
+
     if conf['get_data']['use_alt_mitre']:
       mitr_df = mitr_alt_data
     else:
@@ -45,8 +48,8 @@ def main(config_path):
     
     df['origin_labels'] = df['labels']
     if conf['get_data']['target'] == 'tactic':          
-      df['labels'] = df['labels'].map(lambda x: list(chain(*[label2tactic[it] for it in x])))
-
+      # df['labels'] = df['labels'].map(lambda x: list(chain(*[label2tactic[it] for it in x])))
+      df['labels'] = df['labels'].map(lambda x: list(chain(*[label2tactic[it] if it in label2tactic else '' for it in x ])))
     
     # joblib.dump(df, conf['get_data']['data_fn'])
     df.to_csv(conf['get_data']['data_fn'], index=False)
