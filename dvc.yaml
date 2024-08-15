@@ -3,8 +3,8 @@ stages:
     cmd: python src/get_mitre_data.py params.yaml
     deps:
     - src/get_mitre_data.py
-    params:
-    - get_data.mitre_attack_fn
+    - ${get_data.mitre_attack_fn}
+    params:  
     - get_data.divide_paras
     outs:
     - ${get_data.data_mitre_fn}
@@ -14,13 +14,13 @@ stages:
     cmd: python src/get_add_data.py params.yaml
     deps:
     - ${get_data.data_mitre_fn}
+    - ${get_data.tram_fn}
     - ${get_data.data_mitre_attack_proc_fn}
     - ${get_data.label2tactic_fn}
+    - ${get_data.mitre_alt_fn}
+    - ${get_data.rep_dn}
     - src/get_add_data.py
     params:
-    - get_data.tram_fn
-    - get_data.rep_dn
-    - get_data.mitre_alt_fn
     - get_data.use_tram_f
     - get_data.use_reports_f
     - get_data.add_empty_reports
@@ -48,7 +48,7 @@ stages:
     - prep_text.max_len_token
     - prep_text.save_only_words
     - prep_text.stem_lemm
-    - prep_text.labelled_text_only
+    - prep_text.labelled_text_only  
     outs:
     - ${prep_text.prep_fn}
     - ${prep_text.mlb_fn}
@@ -62,12 +62,14 @@ stages:
     - feat_gen.feat_strategy
     - feat_gen.binary
     - val_ts_size
+    - val_only_proc
     - feat_gen.max_features
     - feat_gen.min_df
     - feat_gen.max_df
     - feat_gen.logreg_c
+    - feat_gen.add_individual_thresh
     - feat_gen.tree_maxdepth
-    - seed
+    - seed  
     outs:
     - ${feat_gen.feat_fn}
     - ${feat_gen.data_fn}

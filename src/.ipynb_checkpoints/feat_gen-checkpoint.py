@@ -57,6 +57,8 @@ def main(config_path):
     data['labels'] = data['labels'].map(lambda x: eval(x))
     data['target'] = mlb.transform(data['labels']).tolist()
 
+    if conf['use_only_proc']:
+        data = data[(data['is_proc']==True)|(data['is_proc'].isna())].reset_index(drop=True)
 
     val_ts_size = conf['val_ts_size']
     
@@ -75,8 +77,17 @@ def main(config_path):
     ts_idx = val_ts_idx[ts_idx]
     
     data['split'] = 'tr'
-    data.loc[data.index[val_idx], 'split'] = 'val'
-    data.loc[data.index[ts_idx], 'split'] = 'ts'
+    # data.loc[data.index[val_idx], 'split'] = 'val'
+    # data.loc[data.index[ts_idx], 'split'] = 'ts'
+
+    if conf['val_only_proc']:
+        data.loc[(data.index.isin(val_idx)) & ((data['is_proc']==True)|(data['is_proc'].isna())), 'split'] = 'val'
+        data.loc[(data.index.isin(ts_idx)) & ((data['is_proc']==True)|(data['is_proc'].isna())), 'split'] = 'ts'
+    else:
+        data.loc[data.index[val_idx], 'split'] = 'val'
+        data.loc[data.index[ts_idx], 'split'] = 'ts'
+
+    
 
     # добавление новых признаков
     # здесь же можно подумать о чистке    
@@ -155,8 +166,8 @@ def main(config_path):
 
         final_cols = final_cols +  col_add_l
         
+    final_cols = pd.Series(final_cols).drop_duplicates().tolist()
     feat_data = feat_data[final_cols]
-
     
     # joblib.dump(feat_data, conf['feat_gen']['feat_fn'])
     feat_data.to_csv(conf['feat_gen']['feat_fn'], index=False)

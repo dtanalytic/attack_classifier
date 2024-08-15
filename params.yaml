@@ -25,13 +25,13 @@ prep_text:
   prep_fn: data/interim/prep_df.csv
   mlb_fn: data/interim/mlb.pkl
 feat_gen:
-  feat_strategy: tfidf   #'tfidf' or 'count'
+  feat_strategy: count   #'tfidf' or 'count'
   binary: false # true or false
   min_df: 10
-  max_df: 0.2
+  max_df: 0.3
   max_features:  # null or int of total features to get
-  logreg_c: 0.3
-  tree_maxdepth: 7
+  logreg_c: 0.05
+  tree_maxdepth: 3
   add_individual_thresh: 0.8 #null if not use individual
   feat_fn: data/interim/feat_df.csv
   data_fn: data/interim/data_df.csv
@@ -41,7 +41,7 @@ feat_eng:
   add_clust_feat: false # false or true - use several k position to predict cluster
   topic_algo: lsa   # lsa or lda
   add_topic_feat:   # null or int - number of topics
-  add_ind_cols: false  # true or false, whether to add cols with T...
+  add_ind_cols: true  # true or false, whether to add cols with T...
   feat_final_fn: data/out/feat_final_df.csv
 train_eval_model:
   chain: true # true use ClassifierChain, false - OneVsRestClassifier
@@ -57,3 +57,5 @@ train_eval_model:
   model_fn: data/out/model.pkl
 seed: 0
 val_ts_size: 0.15
+val_only_proc: false
+use_only_proc: false

@@ -57,15 +57,21 @@ def main(config_path):
         feat_data_new = feat_data_new.join(feat_topic_add)
     
     if conf['feat_eng']['add_ind_cols']:
-        data['target'] = data['target'].map(lambda x: eval(x))
-        data['threat_words'] = data['threat_words'].map(lambda x: eval(x))
-        data['threat_words'] = data['threat_words'].apply(lambda x: ' '.join(x))
+        # add word feat for adversaries 
+        feat_data_new = feat_data
+        selection_adversary = data['sentence'].str.contains('versar')
+        feat_data_new.loc[selection_adversary, 'adversary'] = 1
+        feat_data_new['adversary'] = feat_data_new['adversary'].fillna(0)
         
-        vec = CountVectorizer(tokenizer=custom_tok, binary=True, min_df=1)
-        vec.fit(data.loc[data['train']==1, 'threat_words'])
+        # data['target'] = data['target'].map(lambda x: eval(x))
+        # data['threat_words'] = data['threat_words'].map(lambda x: eval(x))
+        # data['threat_words'] = data['threat_words'].apply(lambda x: ' '.join(x))
+        
+        # vec = CountVectorizer(tokenizer=custom_tok, binary=True, min_df=1)
+        # vec.fit(data.loc[data['split']=='tr', 'threat_words'])
 
-        feat_ind = pd.DataFrame(vec.transform(data['threat_words']).toarray(), columns=vec.get_feature_names_out())
-        feat_data_new = feat_data_new.join(feat_ind)
+        # feat_ind = pd.DataFrame(vec.transform(data['threat_words']).toarray(), columns=vec.get_feature_names_out())
+        # feat_data_new = feat_data_new.join(feat_ind)
     
     # joblib.dump(feat_data_new, conf['feat_eng']['feat_final_fn'])
     feat_data_new.to_csv(conf['feat_eng']['feat_final_fn'], index=False)

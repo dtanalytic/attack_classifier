@@ -78,13 +78,17 @@ def main(config_path):
         
     mitre_attack_df = pd.concat([main_descr_df, proc_df], ignore_index=True)
     
-    # удаляем строки, где процедуры не было совсем
-    mitre_attack_df = mitre_attack_df[~mitre_attack_df['sentence'].isna()].reset_index(drop=True)
+
     
     # удалим ссылочки
     mitre_attack_df['sentence'] = mitre_attack_df['sentence'].str.replace(r'\(https://[^\s]{1,}\)', r'', regex=True)
+    mitre_attack_df['sentence'] = mitre_attack_df['sentence'].str.replace(r'\(Citation:[^\)]*\)', r'', regex=True)
 
-    mitre_attack_df[['sentence', 'labels', 'url', 'par_name']].to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
+    
+    # удаляем строки, где процедуры не было совсем или citatation только (1 запись вроде)
+    mitre_attack_df = mitre_attack_df[(~mitre_attack_df['sentence'].isna()) & (mitre_attack_df['sentence']!='')].reset_index(drop=True)
+    
+    mitre_attack_df[['sentence', 'labels', 'url', 'par_name', 'is_proc']].to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
 
     with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
         json.dump(mitre_attack_df.set_index('labels')['kill_chain_tags'].to_dict(), f_wr)

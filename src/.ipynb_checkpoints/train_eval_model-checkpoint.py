@@ -104,22 +104,18 @@ def main(config_path):
     pr_auc, _ = metric_multi(Y_val, Y_val_proba, average_precision_score)
 
 
-        
     with open(conf['train_eval_model']['metrics_fn'], 'wt') as f_wr:
         json.dump({'val_pr_auc':pr_auc, 'val_logloss':logloss, 'tr_pr_auc':tr_pr_auc, 'tr_logloss':tr_logloss}, f_wr)
 
     joblib.dump(clf_pipe, conf['train_eval_model']['model_fn'])
 
-    res_df = pd.DataFrame()
-    res_df['y'] = Y_val.tolist()
-    res_df['y_proba'] = Y_val_proba.tolist()
 
-
-    
 
     # подберем границу
-    y_true = Y_train
-    probas = Y_tr_proba
+    # y_true = Y_train
+    # probas = Y_tr_proba
+    y_true = Y_val
+    probas = Y_val_proba
     thresh_l = []
     res_d = {}
 
@@ -143,11 +139,17 @@ def main(config_path):
     pd.concat([v.assign(class_nm=mlb.classes_[k]) for k,v in res_d.items()], ignore_index=True).to_csv(conf['train_eval_model']['opt_metric_fn'], index=False)
     
 
+    
 
     preds = np.apply_along_axis(lambda x: x>=x[-1], 0, np.vstack([probas, thresh_l]))[:-1].astype(int)
 
     p_tr_micro, r_tr_micro, f1_tr_micro, _ = precision_recall_fscore_support(y_true, (preds).astype(int), average='micro')
     p_tr_macro, r_tr_macro, f1_tr_macro, _ = precision_recall_fscore_support(y_true, (preds).astype(int), average='macro')
+
+
+    res_df = pd.DataFrame()
+    res_df['y'] = Y_val.tolist()
+    res_df['y_proba'] = Y_val_proba.tolist()
 
     thresh_col = 'y_p'
     res_df[thresh_col] = res_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
@@ -169,20 +171,20 @@ def main(config_path):
     # считаем матрицу расхождений
     df_l = []
     for idx in range(error_df[['labels', 'prob_label']].shape[0]):
-        row = error_df[['labels', 'prob_label']].iloc[idx]
+        row = error_df[['labels', 'prob_label','val_idx']].iloc[idx]
         row_l = []
         good_s = set(row['labels']).intersection(row['prob_label'])
         if len(good_s)>0:
             for it in good_s:
-                row_l.append(pd.DataFrame({'labels':it, 'prob_label':it}, index=[idx]))
+                row_l.append(pd.DataFrame({'labels':it, 'prob_label':it}, index=[row.val_idx]))
                 
         in_labels_s = set(row['labels']).difference(row['prob_label'])
         in_probas_s = set(row['prob_label']).difference(row['labels'])
-        l1 = len(in_labels_s)
-        l2 = len(in_probas_s)
+        # l1 = len(in_labels_s)
+        # l2 = len(in_probas_s)
     
         # if l1>0 or l2>0:
-        row_l.append(pd.DataFrame({'labels':[in_labels_s], 'prob_label':[in_probas_s]}, index=[idx]))
+        row_l.append(pd.DataFrame({'labels':[in_labels_s], 'prob_label':[in_probas_s]}, index=[row.val_idx]))
     
         df_l.append(pd.concat(row_l))
         
@@ -207,7 +209,8 @@ def main(config_path):
     plt.ylabel('True label')
     plt.savefig(conf['train_eval_model']['conf_matrix_fn'])
 
-
+    # так как границу подбираем по валидационной выборке метрики на tr будут такими же, так как
+    # при их создании подбиралд по train выборке
     with open(conf['train_eval_model']['add_metrics_fn'], 'wt') as f_wr:
         json.dump({'val_roc_auc':roc_auc, 'val_logloss':logloss, 'tr_roc_auc':tr_roc_auc, 'tr_logloss':tr_logloss,
                   'p_tr_micro':p_tr_micro, 'r_tr_micro':r_tr_micro, 'f1_tr_micro':f1_tr_micro,
