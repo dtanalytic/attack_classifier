@@ -30,8 +30,8 @@ feat_gen:
   min_df: 10
   max_df: 0.3
   max_features:  # null or int of total features to get
-  logreg_c: 0.05
-  tree_maxdepth: 3
+  logreg_c: 0.01
+  tree_maxdepth: 2
   add_individual_thresh: 0.8 #null if not use individual
   feat_fn: data/interim/feat_df.csv
   data_fn: data/interim/data_df.csv
@@ -50,6 +50,7 @@ train_eval_model:
   opt_metric: f1
   opt_metric_fn: data/out/opt_metric.csv
   by_class_metric_fn: data/out/by_class_metric.csv
+  attack_clf: 'inc' # nan, if alone is included in features and gives pred of empty class, if other string is included in features
   conf_df_fn: data/out/conf_df.csv
   conf_matrix_fn: data/out/confusion_matrix.png
   metrics_fn: data/out/m.json

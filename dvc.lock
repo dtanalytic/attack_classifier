@@ -137,11 +137,11 @@ stages:
         feat_gen.add_individual_thresh: 0.8
         feat_gen.binary: false
         feat_gen.feat_strategy: count
-        feat_gen.logreg_c: 0.05
+        feat_gen.logreg_c: 0.01
         feat_gen.max_df: 0.3
         feat_gen.max_features:
         feat_gen.min_df: 10
-        feat_gen.tree_maxdepth: 3
+        feat_gen.tree_maxdepth: 2
         seed: 0
         val_only_proc: false
         val_ts_size: 0.15
@@ -152,11 +152,11 @@ stages:
       size: 12014929
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: b856cec3a1066c1d0b8ccae511ea661b
-      size: 15032742
+      md5: 7ebc49b0df1189de324d2c7a5fa5fad5
+      size: 14822497
     - path: data/interim/vec.pkl
       hash: md5
-      md5: ca0c298b7b03f7e27d2466d4304da61f
+      md5: 4c70578d248513bc53747d4506c03a44
       size: 128051
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
@@ -167,11 +167,11 @@ stages:
       size: 12014929
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: b856cec3a1066c1d0b8ccae511ea661b
-      size: 15032742
+      md5: 7ebc49b0df1189de324d2c7a5fa5fad5
+      size: 14822497
     - path: data/interim/vec.pkl
       hash: md5
-      md5: ca0c298b7b03f7e27d2466d4304da61f
+      md5: 4c70578d248513bc53747d4506c03a44
       size: 128051
     - path: src/feat_eng.py
       hash: md5
@@ -188,22 +188,23 @@ stages:
     outs:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: a38e07dc790a7e43d330db3d7171a9c8
-      size: 15172900
+      md5: f3812d257d10130c58a4a9c6487ac20a
+      size: 14962655
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: a38e07dc790a7e43d330db3d7171a9c8
-      size: 15172900
+      md5: 2b916294d5fa95891d80918e12daffe8
+      size: 15032741
     - path: src/train_eval_model.py
       hash: md5
-      md5: d241b0b38621503faac11475360382be
-      size: 9434
+      md5: cec5dd122780893310926494a8d8fbd6
+      size: 11999
     params:
       params.yaml:
         seed: 0
+        train_eval_model.attack_clf: inc
         train_eval_model.balanced:
         train_eval_model.chain: true
         train_eval_model.model: logreg
@@ -211,29 +212,29 @@ stages:
     outs:
     - path: data/out/by_class_metric.csv
       hash: md5
-      md5: 769dcd4d96e9461564e6c81db77540d1
-      size: 500
+      md5: 995d2649a7b070f5edc556610c8e4faf
+      size: 501
     - path: data/out/conf_df.csv
       hash: md5
-      md5: ce0f62a0549f883211a2974d3fcf71ad
-      size: 243297
+      md5: 5ba9659707f3901a539e8fd7209ee4a4
+      size: 248349
     - path: data/out/confusion_matrix.png
       hash: md5
-      md5: bd06ffc33d465fcb4a70bb1722ab6903
-      size: 120060
+      md5: daeb4d7598bf9f7cf1886b89125d55d6
+      size: 123280
     - path: data/out/m.json
       hash: md5
-      md5: 89a5f88ee30623f22e6ba01a1cd1b9d7
+      md5: c436b993d1975911266899ce615103c0
       size: 138
     - path: data/out/m_other.json
       hash: md5
-      md5: bd7fdeb29d304b4827ab737e1b59ab89
-      size: 555
+      md5: 7dc633d8bd46e760158d12b3e38ff941
+      size: 556
     - path: data/out/model.pkl
       hash: md5
-      md5: 05ebc1bafc800f53a77643334455595d
-      size: 34927
+      md5: 52b0105704944ef2145b109a59911676
+      size: 34671
     - path: data/out/opt_metric.csv
       hash: md5
-      md5: 40cb3c70b336ee6574b73c6e9caee8dc
-      size: 18722
+      md5: b30a089be840d75ff31f0dc9732dfb5c
+      size: 18709

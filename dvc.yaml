@@ -100,6 +100,7 @@ stages:
       - train_eval_model.model
       - train_eval_model.balanced
       - train_eval_model.opt_metric
+      - train_eval_model.attack_clf
       - seed
       metrics:
       - ${train_eval_model.metrics_fn}

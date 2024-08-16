@@ -61,8 +61,50 @@ def main(config_path):
     tr_idx = data.query('split=="tr"').index
     val_idx = data.query('split=="val"').index
     ts_idx = data.query('split=="ts"').index
-    
-    
+
+
+    # определяемся с классификатором атак
+    if conf['train_eval_model']['attack_clf']:
+        
+        data['is_attack'] = (data['labels'].str.len()>0).astype(np.int8)
+        attack_clf = make_pipeline(RobustScaler(), 
+                                 LogisticRegression(random_state=conf['seed'], class_weight=conf['train_eval_model']['balanced'], max_iter=10000))
+        
+        Y_at_train = np.array(data.loc[tr_idx, 'is_attack'].values.tolist())
+        
+        attack_clf.fit(feat_data.loc[tr_idx].values, Y_at_train)
+        
+        Y_at_tr_proba = attack_clf.predict_proba(feat_data.loc[tr_idx])[:,1]
+        
+        
+        
+        Y_at_val_proba = attack_clf.predict_proba(feat_data.loc[val_idx])[:, 1]
+        Y_at_val = np.array(data.loc[val_idx, 'is_attack'].values.tolist())
+
+        # roc_auc_at_tr = roc_auc_score(Y_at_train, Y_at_tr_proba)
+        # roc_auc_at_val = roc_auc_score(Y_at_val, Y_at_val_proba)
+        
+        # подберем границу
+        y_at_true = Y_at_val
+        at_probas = Y_at_val_proba
+        
+        metric = conf['train_eval_model']['opt_metric']
+        res_metrics_l = []
+        for thresh in np.arange(0.05, 0.95, 0.05):
+        
+            pred_i = (at_probas>thresh).astype(int)
+            p, r, f1, sup = [it[1] for it in precision_recall_fscore_support(y_at_true, pred_i)]
+        
+            res_metrics_df = pd.DataFrame({'precision':p, 'recall':r, 'f1':f1, 'sup':sup}, index=[thresh])
+            res_metrics_l.append(res_metrics_df)
+        
+        res_df = pd.concat([it for it in res_metrics_l], axis=0)
+        thresh = res_df.index[res_df[metric].argmax()].round(3)
+        
+        feat_data['attack_pred'] = (attack_clf.predict_proba(feat_data)[:,1]>thresh).astype(int)
+        feat_data.to_csv(conf['feat_eng']['feat_final_fn'], index=False)
+
+        
     if conf['train_eval_model']['chain']:
         wrap_class = ClassifierChain
     else:
@@ -137,12 +179,17 @@ def main(config_path):
         thresh_l.append(res_d[i].index[res_d[i][metric].argmax()].round(3))
     
     pd.concat([v.assign(class_nm=mlb.classes_[k]) for k,v in res_d.items()], ignore_index=True).to_csv(conf['train_eval_model']['opt_metric_fn'], index=False)
-    
 
-    
 
     preds = np.apply_along_axis(lambda x: x>=x[-1], 0, np.vstack([probas, thresh_l]))[:-1].astype(int)
 
+
+
+    if conf['train_eval_model']['attack_clf']=='alone':
+        attack_idx = np.where((feat_data.loc[data.index[val_idx], 'attack_pred']).values)[0]
+        preds[~attack_idx, :] = 0
+
+    
     p_tr_micro, r_tr_micro, f1_tr_micro, _ = precision_recall_fscore_support(y_true, (preds).astype(int), average='micro')
     p_tr_macro, r_tr_macro, f1_tr_macro, _ = precision_recall_fscore_support(y_true, (preds).astype(int), average='macro')
 
@@ -154,6 +201,10 @@ def main(config_path):
     thresh_col = 'y_p'
     res_df[thresh_col] = res_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
 
+    if conf['train_eval_model']['attack_clf']=='alone':
+        thresh_ar = np.array(res_df[thresh_col].values.tolist())
+        thresh_ar[~attack_idx, :] = 0
+        res_df[thresh_col] = thresh_ar.tolist()
 
     error_df = data.loc[val_idx].reset_index(names='val_idx').join(res_df[['y', 'y_proba', thresh_col]])
     error_df['prob_label'] = mlb.inverse_transform(np.array(error_df[thresh_col].tolist()))
