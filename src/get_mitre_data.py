@@ -37,7 +37,9 @@ def main(config_path):
     mittre_l = []
     for _, row in mitre_df.iterrows():
     
-        proc_itms = [it for it in rel_l if (it['target_ref']==row['id']) and (it['relationship_type']=='uses')]
+        # proc_itms = [it for it in rel_l if (it['target_ref']==row['id']) and (it['relationship_type']=='uses')]
+        proc_itms = [it for it in rel_l if (it['target_ref']==row['id']) and (it['relationship_type']=='uses') and (it['x_mitre_deprecated']==False if 'x_mitre_deprecated' in it else True)]
+
         det_itms = [it for it in rel_l if (it['target_ref']==row['id']) and (it['relationship_type']=='detects')]
         mit_itms = [it for it in rel_l if (it['target_ref']==row['id']) and (it['relationship_type']=='mitigates')]
     
@@ -89,7 +91,7 @@ def main(config_path):
     mitre_attack_df = mitre_attack_df[(~mitre_attack_df['sentence'].isna()) & (mitre_attack_df['sentence']!='')].reset_index(drop=True)
     
     mitre_attack_df[['sentence', 'labels', 'url', 'par_name', 'is_proc']].to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
-
+    
     with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
         json.dump(mitre_attack_df.set_index('labels')['kill_chain_tags'].to_dict(), f_wr)
 

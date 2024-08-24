@@ -54,6 +54,7 @@ def main(config_path):
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['prep_text']['prep_fn'])
     
+    
     data['labels'] = data['labels'].map(lambda x: eval(x))
     data['target'] = mlb.transform(data['labels']).tolist()
 
@@ -93,7 +94,8 @@ def main(config_path):
     # здесь же можно подумать о чистке    
     data['threat_words'] = data['sentence'].str.findall('\((T[\d\.]+)\)')
     data['prep_text'] = data[['prep_text', 'threat_words']].apply(lambda x: ' '.join(x['threat_words']) + f' {x["prep_text"]}' , axis=1)
-    
+
+
     
     if conf['feat_gen']['feat_strategy'] == 'tfidf':
         from sklearn.feature_extraction.text import TfidfVectorizer

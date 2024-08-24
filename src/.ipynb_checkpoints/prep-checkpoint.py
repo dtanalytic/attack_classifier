@@ -33,6 +33,13 @@ def main(config_path):
     if conf['prep_text']['labelled_text_only']:
         data = data[data['labels'].str.len()>1]
 
+    # другие названия в квадратных скобках убираем
+    data['sentence'] = data['sentence'].str.replace(r'\[(\w+)\]', r'\1', regex=True)
+    # юникод, накоторых токенизатор fastai жаловался
+    symb_l = ['\xe4', '\u202f', '\u2192']
+    for symb in symb_l:
+        data['sentence'] = data['sentence'].str.replace(symb, '')
+        
     data['prep_text'] = data['sentence'].apply(lambda x: preprocess_text(x, to_lower=conf['prep_text']['lower'], 
      min_len_token=conf['prep_text']['min_len_token'], max_len_token=conf['prep_text']['max_len_token'], stop_words_l=stop_words_l, 
      stem_lemm_flag=conf['prep_text']['stem_lemm'], save_text=True, save_only_words= conf['prep_text']['save_only_words'], 

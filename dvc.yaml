@@ -111,3 +111,5 @@ stages:
       - ${train_eval_model.conf_matrix_fn}
       - ${train_eval_model.model_fn}
       - ${train_eval_model.add_metrics_fn}
+  train_conv_model:
+     cmd: dvc repro dvc_pipes/train_conv_emb/dvc.yaml
