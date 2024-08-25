@@ -1,0 +1,32 @@
+vars:
+    - ../../params.yaml
+    - params_conv.yaml
+stages:
+  make_conv_emb:
+    cmd: python src/train_conv_emb.py dvc_pipes/train_conv_emb/params_conv.yaml params.yaml
+    params:
+        - seed
+        - dvc_pipes/train_conv_emb/params_conv.yaml:
+            - nn.maxlen
+            - nn.batch_size
+            - nn.vocab_size
+            - nn_conv.embedding_dim
+            - nn_conv.k_size
+            - nn_conv.conv_num
+            - nn_conv.drop_ratio
+            - nn.epoch_num
+            - nn.learning_rate
+            - nn.l2
+            - nn.exp_gamma
+            - nn.milestone_gamma
+            - nn.milestone_l
+    deps:
+        - src/train_conv_emb.py
+        - ${feat_gen.data_fn}
+        - ${prep_text.mlb_fn}
+    outs:
+        - ${nn_conv.metrics_dop_fn}
+        - ${nn_conv.conv_emb_feat_fn}
+    metrics:
+        - ${nn_conv.metrics_fn}
+    wdir: "../../"

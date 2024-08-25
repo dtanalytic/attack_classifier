@@ -1,0 +1,18 @@
+nn:
+    maxlen: 128
+    batch_size: 32
+    vocab_size: 10000
+    epoch_num: 6 # 12
+    learning_rate: 0.005 #5e-3
+    l2: 0.000005 #5e-6
+    exp_gamma: 0.95
+    milestone_gamma: 0.5
+    milestone_l: [2, 4]
+nn_conv:
+    embedding_dim: 20
+    k_size: 15
+    conv_num: 100
+    drop_ratio: 0.7
+    conv_emb_feat_fn: "data/out/conv_emb_feat_df.csv"
+    metrics_dop_fn: "data/out/conv_m_all.json"
+    metrics_fn: "data/out/conv_m.json"
