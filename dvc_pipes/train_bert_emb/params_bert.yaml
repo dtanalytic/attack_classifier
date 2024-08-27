@@ -1,12 +1,12 @@
 nn:
     maxlen: 128
     batch_size: 8
-    epoch_num: 10
+    epoch_num: 7
     learning_rate: 0.005
     exp_gamma: 0.95
     milestone_gamma: 0.5
-    milestone_l: [3, 10]
-    l2: 0
+    milestone_l: [4, 10]
+    l2: 0.00005
 nn_bert:
     drop_ratio: 0.7
     mode: 'cls' #pooler
@@ -14,6 +14,7 @@ nn_bert:
     bert_type: 'secbert_plus' # secbert, scibert, secbert_plus
     metrics_dop_fn: "data/out/bert/bert_m_all.json"
     metrics_fn: "data/out/bert/bert_m.json"
+    add_metrics_fn: "data/out/bert/bert_m_other.json"
     logloss_fig_fn: 'data/out/bert/bert_logloss.png'
     pr_auc_fig_fn: 'data/out/bert/bert_pr_auc.png'
     opt_metric_fn: 'data/out/bert/bert_opt_metric.csv'
