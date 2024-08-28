@@ -1,12 +1,12 @@
 nn:
     maxlen: 128
     batch_size: 8
-    epoch_num: 7
+    epoch_num: 9
     learning_rate: 0.005
     exp_gamma: 0.95
     milestone_gamma: 0.5
-    milestone_l: [4, 10]
-    l2: 0.00005
+    milestone_l: [4, 8]
+    l2: 0.000045
 nn_bert:
     drop_ratio: 0.7
     mode: 'cls' #pooler
