@@ -1,24 +1,26 @@
 nn:
-    maxlen: 128
-    batch_size: 8
-    epoch_num: 7
-    learning_rate: 0.005
-    exp_gamma: 0.95
-    milestone_gamma: 0.5
-    milestone_l: [4, 10]
-    l2: 0.00005
+  maxlen: 128
+  batch_size: 8
+  epoch_num: 12
+  learning_rate: 0.005
+  exp_gamma: 0.95
+  milestone_gamma: 0.5
+  milestone_l:
+  - 3
+  - 6
+  l2: 5e-05
 nn_bert:
-    drop_ratio: 0.7
-    mode: 'cls' #pooler
-    from_existing: false
-    bert_type: 'secbert_plus' # secbert, scibert, secbert_plus
-    metrics_dop_fn: "data/out/bert/bert_m_all.json"
-    metrics_fn: "data/out/bert/bert_m.json"
-    add_metrics_fn: "data/out/bert/bert_m_other.json"
-    logloss_fig_fn: 'data/out/bert/bert_logloss.png'
-    pr_auc_fig_fn: 'data/out/bert/bert_pr_auc.png'
-    opt_metric_fn: 'data/out/bert/bert_opt_metric.csv'
-    by_class_metric_fn: 'data/out/bert/bert_by_class_metric.csv'
-    conf_df_fn: 'data/out/bert/bert_conf_df.csv'
-    conf_matrix_fn: 'data/out/bert/bert_confusion_matrix.png'
-    model_fn: 'data/out/bert/model.pt'
+  drop_ratio: 0.7
+  mode: cls     #pooler, cls
+  from_existing: false
+  bert_type: secbert_plus     # secbert, scibert, secbert_plus
+  metrics_dop_fn: data/out/bert/bert_m_all.json
+  metrics_fn: data/out/bert/bert_m.json
+  add_metrics_fn: data/out/bert/bert_m_other.json
+  logloss_fig_fn: data/out/bert/bert_logloss.png
+  pr_auc_fig_fn: data/out/bert/bert_pr_auc.png
+  opt_metric_fn: data/out/bert/bert_opt_metric.csv
+  by_class_metric_fn: data/out/bert/bert_by_class_metric.csv
+  conf_df_fn: data/out/bert/bert_conf_df.csv
+  conf_matrix_fn: data/out/bert/bert_confusion_matrix.png
+  model_fn: data/out/bert/model.pt
