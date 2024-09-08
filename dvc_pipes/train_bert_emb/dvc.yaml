@@ -3,7 +3,7 @@ vars:
     - params_bert.yaml
 stages:
   make_bert_emb:
-    cmd: python src/train_bert_emb.py dvc_pipes/train_bert_emb/params_bert.yaml params.yaml
+    cmd: python src/train_bert_emb.py dvc_pipes/train_bert_emb/params_bert.yaml
     params:
         - seed
         - dvc_pipes/train_bert_emb/params_bert.yaml:

@@ -10,6 +10,7 @@ from ruamel.yaml import YAML
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import RobustScaler
 
@@ -138,7 +139,8 @@ def main(config_path):
     imp_logreg_df = pd.DataFrame({'features':np.array(col_l)[feat_idx], 'imp':feat_coef_ar[feat_idx]}).sort_values(by='imp', ascending=False)
 
     # выбираем деревом
-    model = DecisionTreeClassifier(random_state=conf['seed'], max_depth=conf['feat_gen']['tree_maxdepth'])
+    # model = DecisionTreeClassifier(random_state=conf['seed'], max_depth=conf['feat_gen']['tree_maxdepth'])
+    model = RandomForestClassifier(n_estimators=100, random_state=conf['seed'], max_depth=conf['feat_gen']['tree_maxdepth'])
     feat_sel_model = OneVsRestClassifier(model)
     
     feat_sel_model.fit(X_train, Y_train)

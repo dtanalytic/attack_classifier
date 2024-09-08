@@ -5,7 +5,7 @@ get_data:
   use_alt_mitre: false
   rep_dn: data/external/rep_dn
   use_tram_f: true
-  use_reports_f: false
+  use_reports_f: true
   add_empty_reports: false
   divide_paras: true
   target: tactic
@@ -31,8 +31,8 @@ feat_gen:
   max_df: 0.3
   max_features:  # null or int of total features to get
   logreg_c: 0.05
-  tree_maxdepth: 2
-  add_individual_thresh: 0.95 # null if not use individual
+  tree_maxdepth: 5
+  add_individual_thresh: 0.85 # null if not use individual
   feat_fn: data/interim/feat_df.csv
   data_fn: data/interim/data_df.csv
   vec_fn: data/interim/vec.pkl

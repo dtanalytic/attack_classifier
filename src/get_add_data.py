@@ -4,6 +4,7 @@ import joblib
 import json
 from itertools import chain
 import click
+import os
 
 from ruamel.yaml import YAML
 
@@ -59,8 +60,23 @@ def main(config_path):
         
     # тут по хорошему получение отчетов
     if conf['get_data']['use_reports_f']:
-        rep_data  = joblib.load('/content/drive/MyDrive/Colab Notebooks/texts/sec_bert/data/rep_data.pkl')
-        df = pd.concat([df, rep_data[['sentence', 'labels']]], ignore_index=True)
+        DN = conf['get_data']['rep_dn']
+        fns = [f'{DN}/{it}' for it in os.listdir(DN) if 'json' in it]
+        
+        tab_df = pd.concat([pd.read_json(fn).explode('tables') for fn in fns], ignore_index=True)
+        tab_df['tables'] = tab_df['tables'].map(lambda x: [(it1, it2) 
+                                        for it1, it2 in zip(x['TechniqueID'].values(), x['Procedure'].values())])
+        tab_df = tab_df.explode('tables').drop_duplicates().reset_index(drop=True)
+        tab_df['technic'] = tab_df['tables'].map(lambda x: x[0])
+        tab_df['sentence'] = tab_df['tables'].map(lambda x: x[1])
+        
+        tab_df = tab_df[tab_df['sentence'].str.split().str.len()>3]
+        tab_df['labels'] = tab_df['technic'].map(lambda x: [x.upper()])
+        
+        # тут и мобильные угрозы есть, поэтому фильтруем их
+        tab_df = tab_df[tab_df['labels'].map(lambda x: all([it in label2tactic for it in x]))]
+
+        df = pd.concat([df, tab_df[['sentence',	'labels', 'report_path']].rename(columns={'report_path':'url'})], ignore_index=True)
     
     df['origin_labels'] = df['labels']
     if conf['get_data']['target'] == 'tactic':          
