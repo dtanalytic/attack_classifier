@@ -1,0 +1,72 @@
+vars:
+    - ../../params.yaml
+    - params_ttp.yaml
+stages:
+  feature_generation_ttp:
+    cmd: python src/ttp/feat_gen.py dvc_pipes/ttp/params_ttp.yaml
+    params:
+    - seed
+    - dvc_pipes/ttp/params_ttp.yaml:
+        - feat_gen_ttp.feat_strategy
+        - feat_gen_ttp.binary
+        - feat_gen_ttp.min_df
+        - feat_gen_ttp.max_df
+        - feat_gen_ttp.max_features
+        - feat_gen_ttp.logreg_c
+        - feat_gen_ttp.tree_maxdepth
+        - feat_gen_ttp.ind_sel_tree_max_depth
+        - feat_gen_ttp.ind_sel_estim_num
+        - feat_gen_ttp.add_individual_thresh
+    deps:
+        - src/ttp/feat_gen.py
+        - src/spec_funcs.py
+        - ${prep_text.ttp_mlb_fn}
+        - ${prep_text.prep_fn}
+    outs:
+        - ${feat_gen_ttp.feat_fn}
+        - ${feat_gen_ttp.data_fn}
+        - ${feat_gen_ttp.vec_fn}
+    wdir: "../../"  
+  feature_engineering_ttp:
+    cmd: python src/ttp/feat_eng.py dvc_pipes/ttp/params_ttp.yaml
+    params:
+    - dvc_pipes/ttp/params_ttp.yaml:
+        - feat_eng_ttp.tfidf_dim
+        - feat_eng_ttp.add_clust_feat
+        - feat_eng_ttp.topic_algo
+        - feat_eng_ttp.add_topic_feat
+        - feat_eng_ttp.add_ind_cols
+    deps:
+        - src/ttp/feat_eng.py
+        - src/spec_funcs.py
+        - ${feat_gen_ttp.feat_fn}
+        - ${feat_gen_ttp.data_fn}
+        - ${feat_gen_ttp.vec_fn}
+    outs:
+        - ${feat_eng_ttp.feat_final_fn}
+    wdir: "../../"  
+  train_eval_model_ttp:
+    cmd: python src/ttp/train_eval_model.py dvc_pipes/ttp/params_ttp.yaml
+    params:
+    - seed
+    - dvc_pipes/ttp/params_ttp.yaml:
+        - train_eval_model_ttp.chain
+        - train_eval_model_ttp.model
+        - train_eval_model_ttp.balanced
+        - train_eval_model_ttp.opt_metric
+        - train_eval_model_ttp.attack_clf
+    deps:
+        - src/ttp/train_eval_model.py
+        - src/spec_funcs.py        
+        - ${feat_eng_ttp.feat_final_fn}
+    metrics:
+        - ${train_eval_model_ttp.metrics_fn}
+    outs:
+        - ${train_eval_model_ttp.opt_metric_fn}
+        - ${train_eval_model_ttp.by_class_metric_fn}
+        - ${train_eval_model_ttp.conf_df_fn}
+        - ${train_eval_model_ttp.conf_matrix_fn}
+        - ${train_eval_model_ttp.conf_matrix_main_er_fn}     
+        - ${train_eval_model_ttp.add_metrics_fn}
+        - ${train_eval_model_ttp.model_fn}
+    wdir: "../../"

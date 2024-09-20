@@ -16,8 +16,9 @@ from collections import Counter
 
 from pymystem3 import Mystem
 
-from src.train_eval_model import metric_multi
+
 from sklearn.metrics import average_precision_score, precision_recall_fscore_support
+from sklearn.ensemble import RandomForestClassifier
 
 import pandas as pd
 
@@ -182,9 +183,6 @@ def preprocess_words(words_l, to_lower=True, min_len_token=3, max_len_token=10, 
 
     return words_l
 
-
-
-
 def get_preds(model, ld):
 
     model.eval()
@@ -201,6 +199,20 @@ def get_preds(model, ld):
     res_d['pred'] = list(chain(*res_d['pred']))
 
     return res_d
+
+def get_pred_thresh(y_true, proba, opt_metric):
+    res_metrics_l = []
+    for thresh in np.arange(0.05, 0.95, 0.05):
+        # import pdb;pdb.set_trace()
+        pred = (proba>thresh).astype(int)
+        p, r, f1, sup = [it[1] for it in precision_recall_fscore_support(y_true, pred)]
+    
+        res_metrics_df = pd.DataFrame({'precision':p, 'recall':r, 'f1':f1, 'sup':sup}, index=[thresh])
+        res_metrics_l.append(res_metrics_df)
+    res_df = pd.concat([it for it in res_metrics_l], axis=0)
+    thresh = res_df.index[res_df[opt_metric].argmax()].round(3)
+
+    return res_df, thresh
     
 def get_opt_thresh(y_true, probas, mlb, opt_metric, dump_fn=None):
 
@@ -209,44 +221,58 @@ def get_opt_thresh(y_true, probas, mlb, opt_metric, dump_fn=None):
 
     metric = opt_metric
     num_cls = len(mlb.classes_)
+    
     for i in range(num_cls):
-        res_metrics_l = []
-        for thresh in np.arange(0.05, 0.95, 0.05):
-            y_i = y_true[:,i]
-            proba_i = (probas[:,i]>thresh).astype(int)
-            p, r, f1, sup = [it[1] for it in precision_recall_fscore_support(y_i, proba_i)]
-    
-            res_metrics_df = pd.DataFrame({'precision':p, 'recall':r, 'f1':f1, 'sup':sup}, index=[thresh])
-            res_metrics_l.append(res_metrics_df)
-    
-        res_d[i] = pd.concat([it for it in res_metrics_l], axis=0)
-        thresh_l.append(res_d[i].index[res_d[i][metric].argmax()].round(3))
+
+        res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric)
+        
+        res_d[i] = res_df
+        thresh_l.append(thresh)
 
     if dump_fn:
         pd.concat([v.assign(class_nm=mlb.classes_[k]) for k,v in res_d.items()], ignore_index=True).to_csv(dump_fn, index=False)
         
     return thresh_l
 
-def get_conf_df(error_df):
+def get_conf_df(error_df, target_col):
 
     # считаем матрицу расхождений
     df_l = []
-    for idx in range(error_df[['labels', 'prob_label']].shape[0]):
-        row = error_df[['labels', 'prob_label','val_idx']].iloc[idx]
+    for idx in range(error_df[[target_col, 'prob_label']].shape[0]):
+        row = error_df[[target_col, 'prob_label','val_idx']].iloc[idx]
         row_l = []
-        good_s = set(row['labels']).intersection(row['prob_label'])
+        good_s = set(row[target_col]).intersection(row['prob_label'])
         if len(good_s)>0:
             for it in good_s:
-                row_l.append(pd.DataFrame({'labels':it, 'prob_label':it}, index=[row.val_idx]))
+                row_l.append(pd.DataFrame({target_col:it, 'prob_label':it}, index=[row.val_idx]))
                 
-        in_labels_s = set(row['labels']).difference(row['prob_label'])
-        in_probas_s = set(row['prob_label']).difference(row['labels'])
-        # l1 = len(in_labels_s)
-        # l2 = len(in_probas_s)
-    
-        # if l1>0 or l2>0:
-        row_l.append(pd.DataFrame({'labels':[in_labels_s], 'prob_label':[in_probas_s]}, index=[row.val_idx]))
+        in_labels_s = set(row[target_col]).difference(row['prob_label'])
+        in_probas_s = set(row['prob_label']).difference(row[target_col])
+
+        row_l.append(pd.DataFrame({target_col:[in_labels_s], 'prob_label':[in_probas_s]}, index=[row.val_idx]))
     
         df_l.append(pd.concat(row_l))
-    conf_df = pd.concat(df_l).explode('labels').explode('prob_label').fillna('empty').reset_index()
+    conf_df = pd.concat(df_l).explode(target_col).explode('prob_label').fillna('empty').reset_index()
+    
     return conf_df
+    
+
+
+def metric_multi(y, y_pred, metric_fn, ignore_const_target=True, **kwargs):
+  metric_l = []
+  for i in range(y.shape[1]):
+    if ignore_const_target:
+        # if len(set(y[:, i]))!=1:
+        if set(y[:, i])!={0}:
+            metric = metric_fn(y[:, i], y_pred[:,i], **kwargs)
+            metric_l.append(metric)
+        elif (y_pred[:, i]>0.5).sum()>0:
+            metric_l.append(0)
+        else:
+            metric_l.append(1)
+    else:
+        metric = metric_fn(y[:, i], y_pred[:,i], labels=[0,1], **kwargs)
+        metric_l.append(metric)
+
+
+  return np.mean(metric_l), metric_l

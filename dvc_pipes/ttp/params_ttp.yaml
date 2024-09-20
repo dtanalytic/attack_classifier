@@ -1,0 +1,35 @@
+feat_gen_ttp:
+  feat_strategy: count   #'tfidf' or 'count'
+  binary: false # true or false
+  min_df: 10
+  max_df: 0.3
+  max_features:  # null or int of total features to get
+  logreg_c: 0.05
+  tree_maxdepth: 5
+  ind_sel_tree_max_depth: 3
+  ind_sel_estim_num: 10
+  add_individual_thresh: 0.5 # null if not use individual
+  feat_fn: data/interim/ttp/feat_df.csv
+  data_fn: data/interim/ttp/data_df.csv
+  vec_fn: data/interim/ttp/vec.pkl
+feat_eng_ttp:
+  tfidf_dim:       # null or int to crop dimension
+  add_clust_feat: false # false or true - use several k position to predict cluster
+  topic_algo: lsa   # lsa or lda
+  add_topic_feat:   # null or int - number of topics
+  add_ind_cols: true  # true or false, whether to add cols with T...
+  feat_final_fn: data/out/ttp/feat_final_df.csv
+train_eval_model_ttp:
+  chain: true # true use ClassifierChain, false - OneVsRestClassifier
+  model: logreg     # tree, forest, knn, logreg, boost
+  balanced:        # balanced or null
+  opt_metric: f1
+  opt_metric_fn: data/out/ttp/opt_metric.csv
+  by_class_metric_fn: data/out/ttp/by_class_metric.csv
+  attack_clf: inc   # nan, if alone is included in features and gives pred of empty class, if other string is included in features
+  conf_df_fn: data/out/ttp/conf_df.csv
+  conf_matrix_fn: data/out/ttp/confusion_matrix.png
+  conf_matrix_main_er_fn: data/out/ttp/confusion_matrix_main_er.png
+  metrics_fn: data/out/ttp/m.json
+  add_metrics_fn: data/out/ttp/m_other.json
+  model_fn: data/out/ttp/model.pkl

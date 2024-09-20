@@ -58,7 +58,6 @@ def main(config_path):
     else:
         df = mitr_df
         
-    # тут по хорошему получение отчетов
     if conf['get_data']['use_reports_f']:
         DN = conf['get_data']['rep_dn']
         fns = [f'{DN}/{it}' for it in os.listdir(DN) if 'json' in it]

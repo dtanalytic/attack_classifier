@@ -17,30 +17,10 @@ from sklearn.preprocessing import RobustScaler
 import sys
 sys.path.append('.')
 
+from src.funcs import add_new_feat
 # если лямбду сделать, то дамп не получится сделать
 def custom_tok(x):
     return word_tokenize(x)
-
-def add_new_feat(data, feat_full_data, cls, seed, tr_idx, col_l, feat_thresh = 0.8):    
-    
-    cls_filter = (data['labels'].map(lambda x: cls in x))
-    
-    feat_full_data[ 'y'] = 0
-    feat_full_data.loc[cls_filter, 'y'] = 1
-    
-    feat_full_data['y'] = feat_full_data['y'].astype(int)
-    
-    cls = DecisionTreeClassifier(max_depth=10, random_state=seed)
-    
-    cls.fit(feat_full_data.drop(columns='y').loc[tr_idx], feat_full_data['y'].loc[tr_idx])
-    
-    imps_df = pd.DataFrame({'feat':feat_full_data.drop(columns='y').columns, 'imp':cls.feature_importances_})\
-        .sort_values(by='imp', ascending=False)
-    
-    idx = np.where(imps_df['imp'].cumsum()/imps_df['imp'].sum()>feat_thresh)[0].min()
-    
-    return [it for it in imps_df.loc[imps_df.index[:idx], 'feat'].tolist() if not it in col_l]
-
 
 
 @click.command()
@@ -55,41 +35,12 @@ def main(config_path):
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['prep_text']['prep_fn'])
     
-    
     data['labels'] = data['labels'].map(lambda x: eval(x))
     data['target'] = mlb.transform(data['labels']).tolist()
 
+    # conf, mlb different, target_column
     if conf['use_only_proc']:
         data = data[(data['is_proc']==True)|(data['is_proc'].isna())].reset_index(drop=True)
-
-    val_ts_size = conf['val_ts_size']
-    
-    mskf = MultilabelStratifiedKFold(n_splits=int(1/(2*val_ts_size)), shuffle=True, random_state=SEED)
-    # позиции от 0 до n
-    for tr_idx, val_ts_idx in mskf.split(data.values, np.array(data['target'].tolist())):
-        break
-    
-    mskf = MultilabelStratifiedKFold(n_splits=2, shuffle=True, random_state=SEED)
-    
-    # позиции от 0 до m
-    for val_idx, ts_idx in mskf.split(data.iloc[val_ts_idx].values, np.array(data['target'].iloc[val_ts_idx].tolist())):
-        break
-    
-    val_idx = val_ts_idx[val_idx]
-    ts_idx = val_ts_idx[ts_idx]
-    
-    data['split'] = 'tr'
-    # data.loc[data.index[val_idx], 'split'] = 'val'
-    # data.loc[data.index[ts_idx], 'split'] = 'ts'
-
-    if conf['val_only_proc']:
-        data.loc[(data.index.isin(val_idx)) & ((data['is_proc']==True)|(data['is_proc'].isna())), 'split'] = 'val'
-        data.loc[(data.index.isin(ts_idx)) & ((data['is_proc']==True)|(data['is_proc'].isna())), 'split'] = 'ts'
-    else:
-        data.loc[data.index[val_idx], 'split'] = 'val'
-        data.loc[data.index[ts_idx], 'split'] = 'ts'
-
-    
 
     # добавление новых признаков
     # здесь же можно подумать о чистке    
@@ -97,6 +48,9 @@ def main(config_path):
     data['prep_text'] = data[['prep_text', 'threat_words']].apply(lambda x: ' '.join(x['threat_words']) + f' {x["prep_text"]}' , axis=1)
 
 
+    tr_idx = data.query('split=="tr"').index
+    val_idx = data.query('split=="val"').index
+    ts_idx = data.query('split=="ts"').index
     
     if conf['feat_gen']['feat_strategy'] == 'tfidf':
         from sklearn.feature_extraction.text import TfidfVectorizer
@@ -131,7 +85,7 @@ def main(config_path):
     feat_sel_model = OneVsRestClassifier(model)
     
     feat_sel_model.fit(X_train, Y_train)
-
+    
     coef_ar = np.vstack([estimator.coef_ for estimator in feat_sel_model.estimators_])
     feat_coef_ar = coef_ar.mean(axis=0)
     feat_idx = np.where((feat_coef_ar>feat_coef_ar.mean()))[0].tolist()
@@ -164,7 +118,7 @@ def main(config_path):
     if conf['feat_gen']['add_individual_thresh']:        
         feat_d = {}
         for cls in mlb.classes_:
-            feat_d[cls] = add_new_feat(data, feat_data, cls, conf['seed'], tr_idx, final_cols, feat_thresh=conf['feat_gen']['add_individual_thresh'])
+            feat_d[cls] = add_new_feat(data, feat_data, cls, conf['seed'], tr_idx, final_cols, sel_tree_max_depth=conf['feat_gen']['ind_sel_tree_max_depth'],feat_thresh=conf['feat_gen']['add_individual_thresh'])
 
         col_add_l = list(chain(*feat_d.values()))
 
@@ -172,10 +126,12 @@ def main(config_path):
         
     final_cols = pd.Series(final_cols).drop_duplicates().tolist()
     feat_data = feat_data[final_cols]
+
+
     
     # joblib.dump(feat_data, conf['feat_gen']['feat_fn'])
     feat_data.to_csv(conf['feat_gen']['feat_fn'], index=False)
-    data.to_csv(conf['feat_gen']['data_fn'], index=False)
+    data.drop(columns=['ttp', 'target_ttp']).to_csv(conf['feat_gen']['data_fn'], index=False)
     joblib.dump(vec, conf['feat_gen']['vec_fn'])
     
     

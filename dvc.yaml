@@ -48,14 +48,17 @@ stages:
     - prep_text.max_len_token
     - prep_text.save_only_words
     - prep_text.stem_lemm
-    - prep_text.labelled_text_only  
+    - prep_text.ttp_counts_thresh  
+    - prep_text.labelled_text_only
     outs:
     - ${prep_text.prep_fn}
     - ${prep_text.mlb_fn}
+    - ${prep_text.ttp_mlb_fn}
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
     - src/feat_gen.py
+    - src/spec_funcs.py
     - ${prep_text.prep_fn}
     - ${prep_text.mlb_fn}
     params:
@@ -67,6 +70,7 @@ stages:
     - feat_gen.min_df
     - feat_gen.max_df
     - feat_gen.logreg_c
+    - feat_gen.ind_sel_tree_max_depth
     - feat_gen.add_individual_thresh
     - feat_gen.tree_maxdepth
     - seed  
@@ -109,6 +113,7 @@ stages:
       - ${train_eval_model.by_class_metric_fn}
       - ${train_eval_model.conf_df_fn}
       - ${train_eval_model.conf_matrix_fn}
+      - ${train_eval_model.conf_matrix_main_er_fn}
       - ${train_eval_model.model_fn}
       - ${train_eval_model.add_metrics_fn}
   train_conv_model:

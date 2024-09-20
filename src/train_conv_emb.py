@@ -24,7 +24,7 @@ DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 import sys
 sys.path.append('.')
 from src.funcs import set_seed, TextVectorizer
-from src.train_eval_model import metric_multi
+from src.funcs import metric_multi
 
 class TextConv(nn.Module):
 

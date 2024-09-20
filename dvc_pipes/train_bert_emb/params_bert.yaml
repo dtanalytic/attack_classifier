@@ -20,5 +20,6 @@ nn_bert:
     opt_metric_fn: 'data/out/bert/bert_opt_metric.csv'
     by_class_metric_fn: 'data/out/bert/bert_by_class_metric.csv'
     conf_df_fn: 'data/out/bert/bert_conf_df.csv'
+    conf_matrix_main_er_fn: 'data/out/bert/bert_confusion_matrix_main_er.png'
     conf_matrix_fn: 'data/out/bert/bert_confusion_matrix.png'
     model_fn: 'data/out/bert/model.pt'

@@ -21,9 +21,11 @@ prep_text:
   max_len_token: 10
   save_only_words: false
   stem_lemm: stem    # stem or null
+  ttp_counts_thresh: 15
   labelled_text_only: false
   prep_fn: data/interim/prep_df.csv
   mlb_fn: data/interim/mlb.pkl
+  ttp_mlb_fn: 'data/interim/ttp/mlb.pkl'
 feat_gen:
   feat_strategy: count   #'tfidf' or 'count'
   binary: false # true or false
@@ -32,7 +34,9 @@ feat_gen:
   max_features:  # null or int of total features to get
   logreg_c: 0.05
   tree_maxdepth: 5
-  add_individual_thresh: 0.85 # null if not use individual
+  ind_sel_tree_max_depth: 5
+  ind_sel_estim_num: 100
+  add_individual_thresh: 0.65 # null if not use individual
   feat_fn: data/interim/feat_df.csv
   data_fn: data/interim/data_df.csv
   vec_fn: data/interim/vec.pkl
@@ -52,6 +56,7 @@ train_eval_model:
   by_class_metric_fn: data/out/by_class_metric.csv
   attack_clf: inc   # nan, if alone is included in features and gives pred of empty class, if other string is included in features
   conf_df_fn: data/out/conf_df.csv
+  conf_matrix_main_er_fn: data/out/confusion_matrix_main_er.png
   conf_matrix_fn: data/out/confusion_matrix.png
   metrics_fn: data/out/m.json
   add_metrics_fn: data/out/m_other.json
