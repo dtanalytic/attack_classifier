@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 # data must contain labels col and col of sents
-def class_word_stat(data, col, word):
+def class_word_stat(data, col, word, target_col):
 
-    return data.explode('labels').assign(has_sent = lambda x: x[col].str.contains(word)).pivot_table(index='labels', values='has_sent', aggfunc=['count', 'sum', 'mean']).sort_values(by=('mean', 'has_sent'), ascending=False)
+    return data.explode(target_col).assign(has_sent = lambda x: x[col].str.contains(word)).pivot_table(index=target_col, values='has_sent', aggfunc=['count', 'sum', 'mean']).sort_values(by=('mean', 'has_sent'), ascending=False)
 
 class BayesExplain():
 
@@ -50,7 +50,7 @@ class BayesExplain():
         return self
     
     def cls_explain(self, name, k=10):
-        return self.cls_d['impact'][-k:]
+        return self.cls_d[name][-k:]
 
     def word_explain(self, word):
         return self.col_prob_df.loc[word]

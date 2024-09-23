@@ -58,7 +58,6 @@ def main(config_path):
     else:
         df = mitr_df
         
-    # тут по хорошему получение отчетов
     if conf['get_data']['use_reports_f']:
         DN = conf['get_data']['rep_dn']
         fns = [f'{DN}/{it}' for it in os.listdir(DN) if 'json' in it]
@@ -95,7 +94,7 @@ def main(config_path):
     df = df.drop_duplicates('sentence')
 
     # есть тексты очень малые и при разбиении на абзацы списки превращаются в мини перечисления
-    df = df[df['sentence'].str.split().str.len()>=10].reset_index(drop=True)
+    df = df[df['sentence'].str.split().str.len()>=5].reset_index(drop=True)
     
     # joblib.dump(df, conf['get_data']['data_fn'])
     df.to_csv(conf['get_data']['data_fn'], index=False)

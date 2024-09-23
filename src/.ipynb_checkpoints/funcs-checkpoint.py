@@ -200,9 +200,11 @@ def get_preds(model, ld):
 
     return res_d
 
-def get_pred_thresh(y_true, proba, opt_metric):
+def get_pred_thresh(y_true, proba, opt_metric, thresh_space_l=[]):
     res_metrics_l = []
-    for thresh in np.arange(0.05, 0.95, 0.05):
+    if len(thresh_space_l)==0:
+        thresh_space_l = np.arange(0.05, 0.95, 0.05)
+    for thresh in thresh_space_l:
         # import pdb;pdb.set_trace()
         pred = (proba>thresh).astype(int)
         p, r, f1, sup = [it[1] for it in precision_recall_fscore_support(y_true, pred)]
@@ -214,7 +216,7 @@ def get_pred_thresh(y_true, proba, opt_metric):
 
     return res_df, thresh
     
-def get_opt_thresh(y_true, probas, mlb, opt_metric, dump_fn=None):
+def get_opt_thresh(y_true, probas, mlb, opt_metric, thresh_space_l=[], dump_fn=None):
 
     thresh_l = []
     res_d = {}
@@ -224,7 +226,7 @@ def get_opt_thresh(y_true, probas, mlb, opt_metric, dump_fn=None):
     
     for i in range(num_cls):
 
-        res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric)
+        res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric, thresh_space_l)
         
         res_d[i] = res_df
         thresh_l.append(thresh)

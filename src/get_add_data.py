@@ -94,7 +94,7 @@ def main(config_path):
     df = df.drop_duplicates('sentence')
 
     # есть тексты очень малые и при разбиении на абзацы списки превращаются в мини перечисления
-    df = df[df['sentence'].str.split().str.len()>=10].reset_index(drop=True)
+    df = df[df['sentence'].str.split().str.len()>=5].reset_index(drop=True)
     
     # joblib.dump(df, conf['get_data']['data_fn'])
     df.to_csv(conf['get_data']['data_fn'], index=False)

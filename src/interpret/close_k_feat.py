@@ -31,7 +31,7 @@ def compute_selected_distances(feat_data, idx):
 
     return select_df
 
-def select_k_neigh(data, feat_data, k, idx=None, **kwargs):
+def select_k_neigh(data, feat_data, k, idx=None, target_col='labels', **kwargs):
 
     if not idx:
         select_df = compute_all_distances(feat_data, **kwargs)
@@ -43,8 +43,8 @@ def select_k_neigh(data, feat_data, k, idx=None, **kwargs):
     
     pairs = select_df[['mem1', 'mem2']].apply(lambda x: tuple(x), axis=1).tolist()
     # pairs = [(it1, it2) for it1, it2 in pairs if it1<it2 ]
-    comp_df = data.loc[data.index[[it1 for it1, _ in pairs]], ['sentence', 'labels', 'url']].reset_index(drop=True).join(
-    data.loc[data.index[[it2 for _, it2 in pairs]], ['sentence', 'labels', 'url']].reset_index(drop=True), 
+    comp_df = data.loc[data.index[[it1 for it1, _ in pairs]], ['sentence', target_col, 'url']].reset_index(drop=True).join(
+    data.loc[data.index[[it2 for _, it2 in pairs]], ['sentence', target_col, 'url']].reset_index(drop=True), 
     lsuffix='_left', rsuffix='_right'
     )
      

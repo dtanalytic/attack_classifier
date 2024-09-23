@@ -18,7 +18,7 @@ def main(config_path):
 
     set_seed(conf['seed'])
 
-    train_eval_classic(conf, target_col='labels', fig_size1=(15,8), fig_size2=(20,12))
+    train_eval_classic(conf, target_col='labels', fig_size1=(15,8), fig_size2=(20,12), thresh_space_l=[])
 
 
 if __name__=='__main__':

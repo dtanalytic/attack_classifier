@@ -291,7 +291,7 @@ def main(config_path_dop):
     
     pd.DataFrame({'qual':res_l, 'class':mlb.classes_}).sort_values(by='qual').to_csv(conf_dop['nn_bert']['by_class_metric_fn'], index=False)
 
-    conf_df = get_conf_df(error_df)
+    conf_df = get_conf_df(error_df, target_col='labels')
 
     conf_df.to_csv(conf_dop['nn_bert']['conf_df_fn'], index=False)
 

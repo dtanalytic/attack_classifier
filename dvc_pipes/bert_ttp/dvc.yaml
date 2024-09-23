@@ -1,0 +1,38 @@
+vars:
+    - ../../params.yaml
+    - params_bert_ttp.yaml
+stages:
+  make_bert_ttp:
+    cmd: python src/train_bert_ttp.py dvc_pipes/bert_ttp/params_bert_ttp.yaml
+    params:
+        - seed
+        - dvc_pipes/bert_ttp/params_bert_ttp.yaml:
+            - nn_ttp.maxlen
+            - nn_ttp.batch_size
+            - nn_ttp.epoch_num
+            - nn_ttp.learning_rate
+            - nn_ttp.l2
+            - nn_ttp.exp_gamma
+            - nn_ttp.milestone_gamma
+            - nn_ttp.milestone_l
+            - nn_ttp.mode
+            - nn_ttp.bert_type
+            - nn_ttp.drop_ratio
+            - nn_ttp.from_existing
+    deps:
+        - src/train_bert_ttp.py
+        - ${feat_gen.data_fn}
+        - ${prep_text.mlb_fn}
+    outs:
+        - ${nn_bert_ttp.metrics_dop_fn}
+        - ${nn_bert_ttp.logloss_fig_fn}
+        - ${nn_bert_ttp.pr_auc_fig_fn}
+        - ${nn_bert_ttp.opt_metric_fn}
+        - ${nn_bert_ttp.by_class_metric_fn}
+        - ${nn_bert_ttp.conf_df_fn}
+        - ${nn_bert_ttp.conf_matrix_fn}
+        - ${nn_bert_ttp.conf_matrix_main_er_fn}
+        - ${nn_bert_ttp.add_metrics_fn}
+    metrics:
+        - ${nn_bert_ttp.metrics_fn}
+    wdir: "../../"

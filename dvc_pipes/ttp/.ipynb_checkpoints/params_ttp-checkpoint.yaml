@@ -2,13 +2,13 @@ feat_gen_ttp:
   feat_strategy: count   #'tfidf' or 'count'
   binary: false # true or false
   min_df: 10
-  max_df: 0.3
+  max_df: 0.1
   max_features:  # null or int of total features to get
   logreg_c: 0.05
-  tree_maxdepth: 5
+  tree_maxdepth: 3
   ind_sel_tree_max_depth: 3
   ind_sel_estim_num: 10
-  add_individual_thresh: 0.5 # null if not use individual
+  add_individual_thresh: 0.3 # null if not use individual
   feat_fn: data/interim/ttp/feat_df.csv
   data_fn: data/interim/ttp/data_df.csv
   vec_fn: data/interim/ttp/vec.pkl

@@ -1,4 +1,4 @@
-
+import numpy as np
 import click
 from ruamel.yaml import YAML
 
@@ -7,6 +7,7 @@ sys.path.append('.')
 
 from src.funcs import set_seed
 from src.spec_funcs import train_eval_classic
+
 
 @click.command()
 @click.argument('config_path')
@@ -26,7 +27,7 @@ def main(config_path):
 
     set_seed(conf['seed'])
 
-    train_eval_classic(conf_ttp, target_col='ttp', fig_size1=(60,40), fig_size2=(20,12))
+    train_eval_classic(conf_ttp, target_col='ttp', fig_size1=(60,40), fig_size2=(20,12), thresh_space_l=np.arange(0.005, 1, 0.005))
 
 
 if __name__=='__main__':

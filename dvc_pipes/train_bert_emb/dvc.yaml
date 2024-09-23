@@ -31,7 +31,7 @@ stages:
         - ${nn_bert.by_class_metric_fn}
         - ${nn_bert.conf_df_fn}
         - ${nn_bert.conf_matrix_fn}
-        - ${nn_bert.conf_matrix_main_er_fn}
+       # - ${nn_bert.conf_matrix_main_er_fn}
         - ${nn_bert.add_metrics_fn}
     metrics:
         - ${nn_bert.metrics_fn}
