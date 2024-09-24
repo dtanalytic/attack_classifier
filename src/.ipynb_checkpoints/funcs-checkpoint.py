@@ -232,7 +232,7 @@ def get_opt_thresh(y_true, probas, mlb, opt_metric, thresh_space_l=[], dump_fn=N
         thresh_l.append(thresh)
 
     if dump_fn:
-        pd.concat([v.assign(class_nm=mlb.classes_[k]) for k,v in res_d.items()], ignore_index=True).to_csv(dump_fn, index=False)
+        pd.concat([v.assign(class_nm=mlb.classes_[k]) for k,v in res_d.items()], ignore_index=False).to_csv(dump_fn)
         
     return thresh_l
 

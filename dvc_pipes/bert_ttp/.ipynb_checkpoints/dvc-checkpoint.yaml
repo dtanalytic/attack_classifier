@@ -1,9 +1,10 @@
 vars:
     - ../../params.yaml
+    - ../ttp/params_ttp.yaml
     - params_bert_ttp.yaml
 stages:
   make_bert_ttp:
-    cmd: python src/train_bert_ttp.py dvc_pipes/bert_ttp/params_bert_ttp.yaml
+    cmd: python src/ttp/train_bert_emb.py dvc_pipes/bert_ttp/params_bert_ttp.yaml
     params:
         - seed
         - dvc_pipes/bert_ttp/params_bert_ttp.yaml:
@@ -15,12 +16,13 @@ stages:
             - nn_ttp.exp_gamma
             - nn_ttp.milestone_gamma
             - nn_ttp.milestone_l
-            - nn_ttp.mode
-            - nn_ttp.bert_type
-            - nn_ttp.drop_ratio
-            - nn_ttp.from_existing
-    deps:
-        - src/train_bert_ttp.py
+            - nn_bert_ttp.mode
+            - nn_bert_ttp.bert_type
+            - nn_bert_ttp.drop_ratio
+            - nn_bert_ttp.from_existing
+    deps:    
+        - src/ttp/train_bert_emb.py
+        - src/spec_nn_funcs.py
         - ${feat_gen.data_fn}
         - ${prep_text.mlb_fn}
     outs:

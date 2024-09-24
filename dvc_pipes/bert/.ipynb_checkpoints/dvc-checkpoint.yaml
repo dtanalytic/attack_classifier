@@ -1,0 +1,39 @@
+vars:
+    - ../../params.yaml
+    - params_bert.yaml
+stages:
+  make_bert_emb:
+    cmd: python src/train_bert_emb.py dvc_pipes/bert/params_bert.yaml
+    params:
+        - seed
+        - dvc_pipes/bert/params_bert.yaml:
+            - nn.maxlen
+            - nn.batch_size
+            - nn.epoch_num
+            - nn.learning_rate
+            - nn.l2
+            - nn.exp_gamma
+            - nn.milestone_gamma
+            - nn.milestone_l
+            - nn_bert.mode
+            - nn_bert.bert_type
+            - nn_bert.drop_ratio
+            - nn_bert.from_existing
+    deps:
+        - src/train_bert_emb.py
+        - src/spec_nn_funcs.py
+        - ${feat_gen.data_fn}
+        - ${prep_text.mlb_fn}
+    outs:
+        - ${nn_bert.metrics_dop_fn}
+        - ${nn_bert.logloss_fig_fn}
+        - ${nn_bert.pr_auc_fig_fn}
+        - ${nn_bert.opt_metric_fn}
+        - ${nn_bert.by_class_metric_fn}
+        - ${nn_bert.conf_df_fn}
+        - ${nn_bert.conf_matrix_fn}
+       # - ${nn_bert.conf_matrix_main_er_fn}
+        - ${nn_bert.add_metrics_fn}
+    metrics:
+        - ${nn_bert.metrics_fn}
+    wdir: "../../"

@@ -3,10 +3,10 @@ vars:
     - params_bert.yaml
 stages:
   make_bert_emb:
-    cmd: python src/train_bert_emb.py dvc_pipes/train_bert_emb/params_bert.yaml
+    cmd: python src/train_bert_emb.py dvc_pipes/bert/params_bert.yaml
     params:
         - seed
-        - dvc_pipes/train_bert_emb/params_bert.yaml:
+        - dvc_pipes/bert/params_bert.yaml:
             - nn.maxlen
             - nn.batch_size
             - nn.epoch_num
@@ -21,6 +21,7 @@ stages:
             - nn_bert.from_existing
     deps:
         - src/train_bert_emb.py
+        - src/spec_nn_funcs.py
         - ${feat_gen.data_fn}
         - ${prep_text.mlb_fn}
     outs:

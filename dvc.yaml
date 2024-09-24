@@ -119,4 +119,4 @@ stages:
   train_conv_model:
      cmd: dvc repro dvc_pipes/train_conv_emb/dvc.yaml
   train_bert_model:
-     cmd: dvc repro dvc_pipes/train_bert_emb/dvc.yaml
+     cmd: dvc repro dvc_pipes/bert/dvc.yaml
