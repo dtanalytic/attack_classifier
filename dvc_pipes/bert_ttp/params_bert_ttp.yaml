@@ -1,11 +1,11 @@
 nn_ttp:
     maxlen: 128
     batch_size: 8
-    epoch_num: 8
-    learning_rate: 0.002
+    epoch_num: 12
+    learning_rate: 0.004
     exp_gamma: 0.95
     milestone_gamma: 0.5
-    milestone_l: [7, 8]
+    milestone_l: [2, 9]
     l2: 0.0000045
 nn_bert_ttp:
     drop_ratio: 0.3
