@@ -166,7 +166,7 @@ stages:
       size: 50645805
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 1e021d48cb1416dfeddde7a310191652
+      md5: 2ec4bf6fbb823a81412b9e47fb9bddaf
       size: 121565
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
@@ -181,7 +181,7 @@ stages:
       size: 50645805
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 1e021d48cb1416dfeddde7a310191652
+      md5: 2ec4bf6fbb823a81412b9e47fb9bddaf
       size: 121565
     - path: src/feat_eng.py
       hash: md5
@@ -198,8 +198,8 @@ stages:
     outs:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 28a2707765866c7ddca069c6af58b6d7
-      size: 50830297
+      md5: b5fccdf63683de02847230f2409bdaf8
+      size: 50768795
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
@@ -226,7 +226,7 @@ stages:
       size: 498
     - path: data/out/conf_df.csv
       hash: md5
-      md5: bf923ccae63cca322d851245c07f03a6
+      md5: 87f4879f3c019870b54e9e4ca8bfffbf
       size: 221310
     - path: data/out/confusion_matrix.png
       hash: md5
@@ -250,9 +250,13 @@ stages:
       size: 113023
     - path: data/out/opt_metric.csv
       hash: md5
-      md5: 9d040f876314f7f2c3786272a8f5be4f
-      size: 18710
+      md5: 43d4b294d2ed9d3664afa257cc07670f
+      size: 21483
   train_conv_model:
     cmd: dvc repro dvc_pipes/train_conv_emb/dvc.yaml
   train_bert_model:
     cmd: dvc repro dvc_pipes/bert/dvc.yaml
+  train_ttp_classic_model:
+    cmd: dvc repro dvc_pipes/ttp/dvc.yaml
+  train_ttp_bert_model:
+    cmd: dvc repro dvc_pipes/bert_ttp/dvc.yaml
