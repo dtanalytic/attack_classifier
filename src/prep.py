@@ -7,12 +7,18 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from pandarallel import pandarallel
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
+
 from ruamel.yaml import YAML
 
 import sys
 sys.path.append('.')
 from src.funcs import preprocess_text
-
+from src.constants import (regexp_email, regexp_cve, regexp_url, regexp_domain, regexp_registry,  regexp_fpath, 
+                             regexp_fname, regexp_ipv4, regexp_ipv6,  regex_domain_zone,
+                            regexp_hash_md5, regexp_hash_sha1, regexp_hash_sha256, regexp_hash_sha512, regexp_hash_ssdeep, 
+                             regexp_coins_eth, regexp_coins_btc, regexp_coins_bch, regexp_coins_ltc,
+                            regexp_coins_doge, regexp_coins_dash, regexp_coins_xmr, regexp_coins_neo, regexp_coins_xrp)
+from src.spec_funcs import replace_entities
 
 pandarallel.initialize(progress_bar=True, nb_workers=0)
 
@@ -31,12 +37,22 @@ def main(config_path):
     data = pd.read_csv(conf['get_data']['data_filt_fn'])
     data['labels'] = data['labels'].map(lambda x: eval(x))
     data['origin_labels'] = data['origin_labels'].map(lambda x: eval(x))
-    
+
+    if conf['prep_text']['replace_entities']:
+        # начиная с python 3.7 порядок ключей сохраняется, поэтому можно не упорядочивать
+        pat_d = {it:globals()[it] for it in globals() if 'regexp_' in it}
+        data['sentence'] = data['sentence'].map(lambda x: replace_entities(x, pat_d))
+        
     if conf['prep_text']['labelled_text_only']:
         data = data[data['labels'].str.len()>1]
 
     # другие названия в квадратных скобках убираем
     data['sentence'] = data['sentence'].str.replace(r'\[(\w+)\]', r'\1', regex=True)
+
+    # после того, как убрал названия в круглых скобках вылезли дубли, например, в отчете та же формулировка, как
+    # и в первоисточнике на митр только уже без круглых скобок
+    data = data.drop_duplicates(subset=['sentence']).reset_index(drop=True)
+    
     # юникод, накоторых токенизатор fastai жаловался
     symb_l = ['\xe4', '\u202f', '\u2192']
     for symb in symb_l:

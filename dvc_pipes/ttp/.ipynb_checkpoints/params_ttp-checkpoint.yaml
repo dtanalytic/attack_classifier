@@ -2,13 +2,22 @@ feat_gen_ttp:
   feat_strategy: count   #'tfidf' or 'count'
   binary: false # true or false
   min_df: 10
-  max_df: 0.1
+  max_df: 0.05
   max_features:  # null or int of total features to get
   logreg_c: 0.05
   tree_maxdepth: 3
   ind_sel_tree_max_depth: 3
   ind_sel_estim_num: 10
   add_individual_thresh: 0.3 # null if not use individual
+  add_aug_sents: true
+  aug_num_mask_pos: [3,]
+  aug_repeate_mask: 1
+  aug_topk: 2
+  aug_synth_thresh_class_num: 20
+  aug_split: 'tr'  # 'tr' or none
+  aug_sim_thresh: 0.95
+  aug_emb_path: 'data/external/models/attack_sent_bert/snapshots/30d285aa0e641ce87a33748a7b3f8f2d8ccfaf42'
+  aug_secbert_path: 'data/external/models/SecureBERT_Plus/snapshots/4c48ccdb8d2019f179b07dfa27656c655394d78e'
   feat_fn: data/interim/ttp/feat_df.csv
   data_fn: data/interim/ttp/data_df.csv
   vec_fn: data/interim/ttp/vec.pkl
@@ -26,7 +35,7 @@ train_eval_model_ttp:
   opt_metric: f1
   opt_metric_fn: data/out/ttp/opt_metric.csv
   by_class_metric_fn: data/out/ttp/by_class_metric.csv
-  attack_clf: inc   # nan, if alone is included in features and gives pred of empty class, if other string is included in features
+  attack_clf:   # nan, if alone is included in features and gives pred of empty class, if other string is included in features
   conf_df_fn: data/out/ttp/conf_df.csv
   conf_matrix_fn: data/out/ttp/confusion_matrix.png
   conf_matrix_main_er_fn: data/out/ttp/confusion_matrix_main_er.png

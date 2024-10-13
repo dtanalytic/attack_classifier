@@ -17,9 +17,19 @@ stages:
         - feat_gen_ttp.ind_sel_tree_max_depth
         - feat_gen_ttp.ind_sel_estim_num
         - feat_gen_ttp.add_individual_thresh
+        - feat_gen_ttp.add_aug_sents
+        - feat_gen_ttp.aug_num_mask_pos
+        - feat_gen_ttp.aug_repeate_mask
+        - feat_gen_ttp.aug_topk
+        - feat_gen_ttp.aug_synth_thresh_class_num
+        - feat_gen_ttp.aug_split
+        - feat_gen_ttp.aug_sim_thresh
+        - feat_gen_ttp.aug_emb_path
+        - feat_gen_ttp.aug_secbert_path
     deps:
         - src/ttp/feat_gen.py
         - src/spec_funcs.py
+        - src/aug_sent.py
         - ${prep_text.ttp_mlb_fn}
         - ${prep_text.prep_fn}
     outs:

@@ -40,9 +40,11 @@ stages:
     cmd: python src/prep.py params.yaml
     deps:
     - src/prep.py
+    - src/spec_funcs.py
     - ${get_data.data_filt_fn}
     params:
     - prep_text.lower
+    - prep_text.replace_entities
     - prep_text.stop_words
     - prep_text.min_len_token
     - prep_text.max_len_token

@@ -5,7 +5,7 @@ import json
 
 from nltk import word_tokenize
 from itertools import chain
-
+import re 
 
 from sklearn.cluster import KMeans
 
@@ -40,6 +40,14 @@ from src.funcs import get_conf_df, get_pred_thresh, set_seed, get_opt_thresh
 # если лямбду сделать, то дамп не получится сделать
 def custom_tok(x):
     return word_tokenize(x)
+
+def replace_entities(s, pat_d):
+    
+    w_l = s.split()
+    for key, val in pat_d.items():    
+        w_l = [w if not re.search(val, w.lower()) else re.sub(val, key, w.lower()) for w in w_l]
+    
+    return ' '.join(w_l)
 
 
 def train_eval_classic(conf, target_col, fig_size1, fig_size2, thresh_space_l=[]):
@@ -268,7 +276,7 @@ def calc_select_feat_matr(data, target_col, mlb, conf):
     np.random.seed(conf['seed'])
     SEED = conf['seed']
     
-    data[target_col] = data[target_col].map(lambda x: eval(x))
+    
     data['target'] = mlb.transform(data[target_col]).tolist()
     
     

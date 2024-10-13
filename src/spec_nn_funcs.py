@@ -176,10 +176,10 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     dirname = os.path.dirname(conf_dop['nn_bert']['model_fn'])
 
     if conf_dop['nn_bert']['from_existing']:
-
-        model = torch.load(f'{dirname}/{bert_type}_{name}')
+        
+        model = torch.load(f'{conf["nn_bert"]["model_fn"]}')
+    
         # saving old one
-
         os.rename(f'{dirname}/{bert_type}_{name}', f'{dirname}/prev_{bert_type}_{name}')
     
     for epoch in range(1, EPOCH_NUM+1):
@@ -230,6 +230,8 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
                 res_d['pred'] = list(chain(*res_d['pred']))
     
 
+        # pr_auc_tr не будет совпадать с оценкой по всему tr_ld, так как при копирования out из batch_tr у нас результаты разные 
+        # из-за backpropagation
         loss_d[epoch] = {'log_loss_tr_batch':tr_loss_epoch/tr_batch_num,
                           'log_loss_val_batch':val_loss_epoch/val_batch_num,
                         'pr_auc_batch':pr_auc/val_batch_num,
@@ -281,6 +283,23 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     p_val_macro, r_val_macro, f1_val_macro, sup = precision_recall_fscore_support(np.array(res_df['y'].values.tolist()), 
                                                         np.array(res_df[thresh_col].values.tolist()), average='macro')
 
+
+    # res_tr_df = pd.DataFrame({'y_proba':np.array(res_d['tr_pred']).tolist(), 'y':np.array(res_d['tr_target']).tolist()})
+
+    tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
+    res_tr = get_preds(model, ld=tr_ld)
+    res_tr_df = pd.DataFrame({'y_proba':np.array(res_tr['pred']).tolist(), 'y':data.loc[tr_idx, 'target'].values.tolist()})
+    
+    res_tr_df[thresh_col] = res_tr_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
+    
+    
+    p_tr_micro, r_tr_micro, f1_tr_micro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
+                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='micro')
+    p_tr_macro, r_tr_macro, f1_tr_macro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
+                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='macro')
+    
+    
+    
     _, res_l = metric_multi(np.array(error_df['y'].tolist()), np.array(error_df[thresh_col].tolist()), f1_score)
     
     pd.DataFrame({'qual':res_l, 'class':mlb.classes_}).sort_values(by='qual').to_csv(conf_dop['nn_bert']['by_class_metric_fn'], index=False)
@@ -321,6 +340,9 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     with open(conf_dop['nn_bert']['add_metrics_fn'], 'wt') as f_wr:
         json.dump({'p_val_micro':p_val_micro, 'r_val_micro':r_val_micro, 'f1_val_micro':f1_val_micro,
-                   'p_val_macro':p_val_macro, 'r_val_macro':r_val_macro, 'f1_val_macro':f1_val_macro}, f_wr)
+                   'p_val_macro':p_val_macro, 'r_val_macro':r_val_macro, 'f1_val_macro':f1_val_macro,
+                  'p_tr_micro':p_tr_micro, 'r_tr_micro':r_tr_micro, 'f1_tr_micro':f1_tr_micro,
+                   'p_tr_macro':p_tr_macro, 'r_tr_macro':r_tr_macro, 'f1_tr_macro':f1_tr_macro}, f_wr)
         
     torch.save(model, f'{dirname}/{bert_type}_{name}')
+    torch.save(model, f'{conf_dop["nn_bert"]["model_fn"]}')

@@ -13,7 +13,7 @@ class BayesExplain():
     def __init__(self, data, feat_data, mlb):
         
         self.data = data
-        self.feat_data = feat_data.drop(columns='attack_pred')
+        self.feat_data = feat_data#.drop(columns='attack_pred')
         self.mlb = mlb
         self.col_l = self.feat_data.columns
         

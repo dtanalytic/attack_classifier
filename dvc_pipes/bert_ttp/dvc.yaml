@@ -35,6 +35,7 @@ stages:
         - ${nn_bert_ttp.conf_matrix_fn}
         - ${nn_bert_ttp.conf_matrix_main_er_fn}
         - ${nn_bert_ttp.add_metrics_fn}
+        - ${nn_bert_ttp.model_fn}
     metrics:
         - ${nn_bert_ttp.metrics_fn}
     wdir: "../../"
