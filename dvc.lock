@@ -5,8 +5,8 @@ stages:
     deps:
     - path: data/external/enterprise-attack.json
       hash: md5
-      md5: 694ad1fddfe7a00959c195c36dc6d53e
-      size: 43474692
+      md5: c94cce0ee047d11c5c4a7475259e04f6
+      size: 44231946
     - path: src/get_mitre_data.py
       hash: md5
       md5: f7ff9e12b51fe79da2635d97847a1703
@@ -32,16 +32,16 @@ stages:
     deps:
     - path: data/external/dataset.txt
       hash: md5
-      md5: 8ced30b0a5777f7650930d4c542e0c92
-      size: 1847828
+      md5: d0a5e5ec3a635aaa4277acef01371c13
+      size: 1860959
     - path: data/external/multi_label.json
       hash: md5
-      md5: e144bdea2eeef5f35758704590c1f937
-      size: 5882360
+      md5: 4e37ce4f0d60fb6c51d1c40ecee4dc12
+      size: 5987464
     - path: data/external/rep_dn
       hash: md5
-      md5: 2f3ce9e25f33af638d449d6a9aa1cd6e.dir
-      size: 727579
+      md5: 8a078ab32bbba7bce63fc56078b66804.dir
+      size: 742875
       nfiles: 25
     - path: data/interim/label2tactic.json
       hash: md5

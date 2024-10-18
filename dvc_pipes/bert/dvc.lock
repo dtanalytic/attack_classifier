@@ -13,8 +13,8 @@ stages:
       size: 1386
     - path: src/spec_nn_funcs.py
       hash: md5
-      md5: f6051cef705fb5305351e2f4a82012b0
-      size: 15349
+      md5: 84fd168dae5cc2b9af8fbc957447580e
+      size: 15965
     - path: src/train_bert_emb.py
       hash: md5
       md5: 777e0703188453138128246acc5d2ce5
@@ -37,6 +37,7 @@ stages:
         nn_bert.drop_ratio: 0.7
         nn_bert.from_existing: false
         nn_bert.mode: cls
+        nn_bert.thresh_split: val
     outs:
     - path: data/out/bert/bert_by_class_metric.csv
       hash: md5
@@ -44,7 +45,7 @@ stages:
       size: 482
     - path: data/out/bert/bert_conf_df.csv
       hash: md5
-      md5: 777adf2d6591ca620b7933d45deeb84e
+      md5: 0d9416a5c63c6e2a9e95f14f7be446b9
       size: 233183
     - path: data/out/bert/bert_confusion_matrix.png
       hash: md5
@@ -80,5 +81,5 @@ stages:
       size: 24000
     - path: data/out/bert/model.pt
       hash: md5
-      md5: b2daa71c8433af2bc68d25ef176d1d74
+      md5: 273fc953176cffe3e53f483f8648990a
       size: 501103670

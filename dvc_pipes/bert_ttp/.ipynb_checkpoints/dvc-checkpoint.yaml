@@ -20,6 +20,7 @@ stages:
             - nn_bert_ttp.bert_type
             - nn_bert_ttp.drop_ratio
             - nn_bert_ttp.from_existing
+            - nn_bert_ttp.thresh_split
     deps:    
         - src/ttp/train_bert_emb.py
         - src/spec_nn_funcs.py

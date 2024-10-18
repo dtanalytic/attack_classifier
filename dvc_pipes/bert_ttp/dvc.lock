@@ -13,12 +13,12 @@ stages:
       size: 3484
     - path: src/spec_nn_funcs.py
       hash: md5
-      md5: f6051cef705fb5305351e2f4a82012b0
-      size: 15349
+      md5: 84fd168dae5cc2b9af8fbc957447580e
+      size: 15965
     - path: src/ttp/train_bert_emb.py
       hash: md5
-      md5: 77622c7943a0a8444deac37420d59819
-      size: 973
+      md5: 170e81c545add3460717cb4e5b6b6793
+      size: 1006
     params:
       params.yaml:
         seed: 0
@@ -27,6 +27,7 @@ stages:
         nn_bert_ttp.drop_ratio: 0.3
         nn_bert_ttp.from_existing: false
         nn_bert_ttp.mode: cls
+        nn_bert_ttp.thresh_split: tr
         nn_ttp.batch_size: 8
         nn_ttp.epoch_num: 8
         nn_ttp.exp_gamma: 0.95
@@ -39,20 +40,20 @@ stages:
     outs:
     - path: data/out/bert_ttp/bert_by_class_metric.csv
       hash: md5
-      md5: f6e25372637bd8a7c88c3ca2de0c1231
-      size: 4932
+      md5: f9ed76ae9d94433faf8336fa6b0a1f00
+      size: 4546
     - path: data/out/bert_ttp/bert_conf_df.csv
       hash: md5
-      md5: d1dff4a83b25fb9000546903d1294e75
-      size: 151114
+      md5: 97a976901951e88f3677b4bb478636ee
+      size: 142205
     - path: data/out/bert_ttp/bert_confusion_matrix.png
       hash: md5
-      md5: f28a3f0d0fcde6daa414e54f2556b22c
-      size: 1076002
+      md5: 95fc427d968b5f0567afdbc6de5e3600
+      size: 1078300
     - path: data/out/bert_ttp/bert_confusion_matrix_main_er.png
       hash: md5
-      md5: ec2b00808ffbd4dfcfd7b44193bbed76
-      size: 91405
+      md5: 4d36c2a4dc2ff18a78ec388416a92b36
+      size: 91603
     - path: data/out/bert_ttp/bert_logloss.png
       hash: md5
       md5: fa0462fd84dd0fa2c5b343c266f965a1
@@ -67,17 +68,17 @@ stages:
       size: 2164
     - path: data/out/bert_ttp/bert_m_other.json
       hash: md5
-      md5: ac9bf2d4507dc33344a9be2d16b08ab4
-      size: 416
+      md5: 1c7f7c0071014435d5111aad0d189995
+      size: 417
     - path: data/out/bert_ttp/bert_opt_metric.csv
       hash: md5
-      md5: ff0f3fb50c1d8b3bb974b8893afefd9b
-      size: 2051874
+      md5: c03f5291dfb1e80b15ca25120e9eeba8
+      size: 6653696
     - path: data/out/bert_ttp/bert_pr_auc.png
       hash: md5
       md5: 44bc6008f6cb42beb7daa83ad0306110
       size: 20931
     - path: data/out/bert_ttp/model.pt
       hash: md5
-      md5: 9c9e59c437713f148b694ac7583eab6e
+      md5: 94d7d37a8e9c056751b665dcbe430445
       size: 501685046
