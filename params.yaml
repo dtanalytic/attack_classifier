@@ -7,6 +7,7 @@ get_data:
   use_tram_f: true
   use_reports_f: true
   add_empty_reports: false
+  ignore_subt: true
   divide_paras: true
   target: tactic
   data_mitre_fn: data/interim/mitre.csv

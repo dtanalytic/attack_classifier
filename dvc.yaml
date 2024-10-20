@@ -21,6 +21,7 @@ stages:
     - ${get_data.rep_dn}
     - src/get_add_data.py
     params:
+    - get_data.ignore_subt
     - get_data.use_tram_f
     - get_data.use_reports_f
     - get_data.add_empty_reports
