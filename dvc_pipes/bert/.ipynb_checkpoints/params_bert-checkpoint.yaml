@@ -11,6 +11,7 @@ nn_bert:
     drop_ratio: 0.7
     mode: 'cls' #pooler
     from_existing: false
+    thresh_split: 'val' # tr or val
     bert_type: 'secbert_plus' # secbert, scibert, secbert_plus
     metrics_dop_fn: "data/out/bert/bert_m_all.json"
     metrics_fn: "data/out/bert/bert_m.json"

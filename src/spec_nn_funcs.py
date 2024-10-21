@@ -262,11 +262,20 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     plt.savefig(conf_dop['nn_bert']['pr_auc_fig_fn'])
 
     res_val = get_preds(model, ld=val_ld)
-
+    tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
+    res_tr = get_preds(model, ld=tr_ld)
+    
     Y_val_proba = np.array(res_val['pred'])
     Y_val = np.array(data.loc[val_idx, 'target'].values.tolist())
-    
-    thresh_l = get_opt_thresh(y_true = Y_val, probas = Y_val_proba, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
+
+    if conf_dop['nn_bert']['thresh_split']=="tr":
+        y_thresh = np.array(data.loc[tr_idx, 'target'].values.tolist())
+        y_thresh_probas = np.array(res_tr['pred'])  
+    else:
+        y_thresh = Y_val
+        y_thresh_probas = Y_val_proba
+        
+    thresh_l = get_opt_thresh(y_true = y_thresh, probas = y_thresh_probas, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
 
     res_df = pd.DataFrame()
     res_df['y'] = Y_val.tolist()
@@ -286,8 +295,7 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     # res_tr_df = pd.DataFrame({'y_proba':np.array(res_d['tr_pred']).tolist(), 'y':np.array(res_d['tr_target']).tolist()})
 
-    tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
-    res_tr = get_preds(model, ld=tr_ld)
+
     res_tr_df = pd.DataFrame({'y_proba':np.array(res_tr['pred']).tolist(), 'y':data.loc[tr_idx, 'target'].values.tolist()})
     
     res_tr_df[thresh_col] = res_tr_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
