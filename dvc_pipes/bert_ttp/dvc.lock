@@ -5,12 +5,12 @@ stages:
     deps:
     - path: data/interim/ttp/data_df.csv
       hash: md5
-      md5: 80f8253074c916e632121add3893ea07
-      size: 43981944
+      md5: e47112838daf76b0799a77008f753821
+      size: 65681697
     - path: data/interim/ttp/mlb.pkl
       hash: md5
-      md5: df37de6e8b389dcc9282030d7c1edc38
-      size: 2230
+      md5: 400dd1536fb247aeb574d6292afaf744
+      size: 3478
     - path: src/spec_nn_funcs.py
       hash: md5
       md5: cf5fef5d603c74808f34981adf264022
@@ -27,7 +27,7 @@ stages:
         nn_bert_ttp.drop_ratio: 0.3
         nn_bert_ttp.from_existing: false
         nn_bert_ttp.mode: cls
-        nn_bert_ttp.thresh_split: val
+        nn_bert_ttp.thresh_split: tr
         nn_ttp.batch_size: 8
         nn_ttp.epoch_num: 8
         nn_ttp.exp_gamma: 0.95
@@ -40,45 +40,45 @@ stages:
     outs:
     - path: data/out/bert_ttp/bert_by_class_metric.csv
       hash: md5
-      md5: d544bf013ee54ec019f9b5b2fd9a2113
-      size: 3032
+      md5: bb73c53fdc3d47ab96dc95d812a2e075
+      size: 4355
     - path: data/out/bert_ttp/bert_conf_df.csv
       hash: md5
-      md5: a22a08b31744637540c9aa8e723abcfb
-      size: 130964
+      md5: a7b607f26811ec5c6b4b593f1ec48a63
+      size: 133815
     - path: data/out/bert_ttp/bert_confusion_matrix.png
       hash: md5
-      md5: a106aba3d5bedac028160417c09e7a34
-      size: 554724
+      md5: fd6cc3f2e74c8cc1b60202485e89fafd
+      size: 1078912
     - path: data/out/bert_ttp/bert_confusion_matrix_main_er.png
       hash: md5
-      md5: 399507902e1a0c1d8af09240b97d7c26
-      size: 87649
+      md5: 858368591a4b539def5d34094ceb05b8
+      size: 113030
     - path: data/out/bert_ttp/bert_logloss.png
       hash: md5
-      md5: fd7357d14bc5a0057ab5fb24839d74ca
-      size: 25610
+      md5: a26e76e958671dcb5f3e686e4d87309a
+      size: 24726
     - path: data/out/bert_ttp/bert_m.json
       hash: md5
-      md5: ab793a145f26706e6d27a682cd4961f0
-      size: 74
+      md5: c661a0efbddc31b7841ad5718b643bd2
+      size: 75
     - path: data/out/bert_ttp/bert_m_all.json
       hash: md5
-      md5: 34b908e3342b38435d42ec0e254c4819
-      size: 2168
+      md5: 466908c174d9b6131151d266982de2d2
+      size: 2170
     - path: data/out/bert_ttp/bert_m_other.json
       hash: md5
-      md5: 3ebe11c952ddfe1d0cfdefb814c26685
-      size: 416
+      md5: b08b464b33a8cc9a19898c2da3f766b0
+      size: 413
     - path: data/out/bert_ttp/bert_opt_metric.csv
       hash: md5
-      md5: a6f4e08d9468d46e71f15e7aabf696e0
-      size: 3587257
+      md5: 90b7e2d8dafb85cefc39b2db644b876e
+      size: 6544067
     - path: data/out/bert_ttp/bert_pr_auc.png
       hash: md5
-      md5: c0607d59158f8b521f726a415a9f3551
-      size: 20910
+      md5: 60dfe7b13c6ae5c68ff29a9b020fa7d7
+      size: 20132
     - path: data/out/bert_ttp/model.pt
       hash: md5
-      md5: 5a577ff3bbbc440d037ebff0f1dea5fd
-      size: 501486070
+      md5: 5654de7f2d8bdaa208d9e42b222b89bf
+      size: 501682934
