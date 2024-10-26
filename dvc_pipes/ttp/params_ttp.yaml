@@ -10,9 +10,9 @@ feat_gen_ttp:
   ind_sel_estim_num: 10
   add_individual_thresh: 0.3 # null if not use individual
   add_aug_sents: true
-  aug_num_mask_pos: [1]
+  aug_num_mask_pos: [3]
   aug_repeate_mask: 1
-  aug_topk: 4
+  aug_topk: 2
   aug_synth_thresh_class_num: 20
   aug_split: 'tr'  # 'tr' or none
   aug_sim_thresh: 0.95

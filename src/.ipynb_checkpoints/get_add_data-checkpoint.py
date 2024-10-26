@@ -78,8 +78,8 @@ def main(config_path):
         df = pd.concat([df, tab_df[['sentence',	'labels', 'report_path']].rename(columns={'report_path':'url'})], ignore_index=True)
     
     df['origin_labels'] = df['labels']
+    df['origin_ttp'] = df['labels']
     if conf['get_data']['ignore_subt']:
-        df['origin_ttp'] = df['labels']
         df['origin_labels'] = df['origin_labels'].map(lambda x: [it.split('.')[0] for it in x])
     
     if conf['get_data']['target'] == 'tactic':          

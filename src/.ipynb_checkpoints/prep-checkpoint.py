@@ -51,7 +51,7 @@ def main(config_path):
 
     # после того, как убрал названия в круглых скобках вылезли дубли, например, в отчете та же формулировка, как
     # и в первоисточнике на митр только уже без круглых скобок
-    data = data.drop_duplicates(subset=['sentence']) 
+    data = data.drop_duplicates(subset=['sentence']).reset_index(drop=True)
     
     # юникод, накоторых токенизатор fastai жаловался
     symb_l = ['\xe4', '\u202f', '\u2192']
@@ -85,16 +85,33 @@ def main(config_path):
     data['target_ttp'] = mlb_ttp.transform(data['ttp']).tolist()
     
     val_ts_size = conf['val_ts_size']
+
+    # if conf['get_data']['ignore_subt']:
+        
+    data['origin_ttp'] = data['origin_ttp'].map(lambda x: eval(x))
+
+    # sub_counts_thresh = conf['prep_text']['ttp_counts_thresh']
+    # sub_l = data['origin_ttp'].explode('origin_ttp').value_counts().loc[lambda x: x>sub_counts_thresh].index.tolist()
+    sub_l = data['origin_ttp'].explode('origin_ttp').value_counts().loc[lambda x: x>0].index.tolist()
+    
+    mlb_split = MultiLabelBinarizer()
+    mlb_split.fit([[c] for c in sub_l+['rare']])
+    
+    data['origin_ttp_enc'] = mlb_split.transform(data['origin_ttp'].map(lambda x: [it if it in sub_l else 'rare' for it in x] )).tolist()
+    split_col = 'origin_ttp_enc'
+        
+    # else:
+    #     split_col = 'target_ttp'
     
     mskf = MultilabelStratifiedKFold(n_splits=int(1/(2*val_ts_size)), shuffle=True, random_state=SEED)
     # позиции от 0 до n
-    for tr_idx, val_ts_idx in mskf.split(data.values, np.array(data['target_ttp'].tolist())):
+    for tr_idx, val_ts_idx in mskf.split(data.values, np.array(data[split_col].tolist())):
         break
     
     mskf = MultilabelStratifiedKFold(n_splits=2, shuffle=True, random_state=SEED)
     
     # позиции от 0 до m
-    for val_idx, ts_idx in mskf.split(data.iloc[val_ts_idx].values, np.array(data['target_ttp'].iloc[val_ts_idx].tolist())):
+    for val_idx, ts_idx in mskf.split(data.iloc[val_ts_idx].values, np.array(data[split_col].iloc[val_ts_idx].tolist())):
         break
     
     val_idx = val_ts_idx[val_idx]
