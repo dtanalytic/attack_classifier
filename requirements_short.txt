@@ -1,0 +1,13 @@
+click
+pandas
+seaborn
+transformers==4.41.2
+sentence_transformers
+dvc
+joblib
+iterative-stratification
+pandarallel
+pymystem3
+nltk
+ruamel.yaml
+scikit-learn
