@@ -5,12 +5,12 @@ stages:
     deps:
     - path: data/interim/prep_df.csv
       hash: md5
-      md5: 4ee9f2727d9e178bf2e8001f4db14c6e
-      size: 82953245
+      md5: bf09555e4c7ba1170bef1f2b6d756077
+      size: 88920023
     - path: data/interim/ttp/mlb.pkl
       hash: md5
-      md5: 372da3ed9a7ef98b2e7de27ca225cef1
-      size: 2230
+      md5: 1f3c408504a91f8704c2bee413dcb01f
+      size: 3478
     - path: src/aug_sent.py
       hash: md5
       md5: 6ae89dd51e3a1f9bfc3468ee74174a55
@@ -32,14 +32,14 @@ stages:
         feat_gen_ttp.aug_emb_path: 
           data/external/models/attack_sent_bert/snapshots/30d285aa0e641ce87a33748a7b3f8f2d8ccfaf42
         feat_gen_ttp.aug_num_mask_pos:
-        - 3
+        - 1
         feat_gen_ttp.aug_repeate_mask: 1
         feat_gen_ttp.aug_secbert_path: 
           data/external/models/SecureBERT_Plus/snapshots/4c48ccdb8d2019f179b07dfa27656c655394d78e
         feat_gen_ttp.aug_sim_thresh: 0.95
         feat_gen_ttp.aug_split: tr
         feat_gen_ttp.aug_synth_thresh_class_num: 20
-        feat_gen_ttp.aug_topk: 2
+        feat_gen_ttp.aug_topk: 8
         feat_gen_ttp.binary: false
         feat_gen_ttp.feat_strategy: count
         feat_gen_ttp.ind_sel_estim_num: 10
@@ -52,31 +52,31 @@ stages:
     outs:
     - path: data/interim/ttp/data_df.csv
       hash: md5
-      md5: 4e7e30294de3d2969c85ef98c5b2efdd
-      size: 106920102
+      md5: 6566c0069d5fbc544b968f92ecac7ed3
+      size: 135231485
     - path: data/interim/ttp/feat_df.csv
       hash: md5
-      md5: 4c8cb5dcf3505d568a6c5625a41f516b
-      size: 42552688
+      md5: fbb9dce601fa40d9bbcc3d6ffee1d308
+      size: 66392506
     - path: data/interim/ttp/vec.pkl
       hash: md5
-      md5: e6578dffe93504559030a9aaab207713
-      size: 172870
+      md5: c606c982f34bd3f7c0259e499fd3e661
+      size: 215642
   feature_engineering_ttp:
     cmd: python src/ttp/feat_eng.py dvc_pipes/ttp/params_ttp.yaml
     deps:
     - path: data/interim/ttp/data_df.csv
       hash: md5
-      md5: 4e7e30294de3d2969c85ef98c5b2efdd
-      size: 106920102
+      md5: 6566c0069d5fbc544b968f92ecac7ed3
+      size: 135231485
     - path: data/interim/ttp/feat_df.csv
       hash: md5
-      md5: 4c8cb5dcf3505d568a6c5625a41f516b
-      size: 42552688
+      md5: fbb9dce601fa40d9bbcc3d6ffee1d308
+      size: 66392506
     - path: data/interim/ttp/vec.pkl
       hash: md5
-      md5: e6578dffe93504559030a9aaab207713
-      size: 172870
+      md5: c606c982f34bd3f7c0259e499fd3e661
+      size: 215642
     - path: src/spec_funcs.py
       hash: md5
       md5: ba6e4fcee652c7e6160bffdb26204e74
@@ -95,15 +95,15 @@ stages:
     outs:
     - path: data/out/ttp/feat_final_df.csv
       hash: md5
-      md5: 4ec9ce227757e846d3f570ffe7aebe1b
-      size: 42682214
+      md5: be265f451aacfac5a31d357557195f50
+      size: 66539544
   train_eval_model_ttp:
     cmd: python src/ttp/train_eval_model.py dvc_pipes/ttp/params_ttp.yaml
     deps:
     - path: data/out/ttp/feat_final_df.csv
       hash: md5
-      md5: 4ec9ce227757e846d3f570ffe7aebe1b
-      size: 42682214
+      md5: be265f451aacfac5a31d357557195f50
+      size: 66539544
     - path: src/spec_funcs.py
       hash: md5
       md5: ba6e4fcee652c7e6160bffdb26204e74
@@ -124,33 +124,33 @@ stages:
     outs:
     - path: data/out/ttp/by_class_metric.csv
       hash: md5
-      md5: f3e43ebf15628961be44f7fc3678f1a2
-      size: 3058
+      md5: 6507399f91f9535d4263e550f1bc8c46
+      size: 4875
     - path: data/out/ttp/conf_df.csv
       hash: md5
-      md5: 6945c43dc46ddcc445065ac22551bebc
-      size: 133423
+      md5: 05838329f0419def78f29030a4b0750c
+      size: 156879
     - path: data/out/ttp/confusion_matrix.png
       hash: md5
-      md5: 20f7164f78823f7b62b41c684121f772
-      size: 564186
+      md5: be33951ae4ccd34daba2076d22e89dde
+      size: 1089234
     - path: data/out/ttp/confusion_matrix_main_er.png
       hash: md5
-      md5: 94bc397e87e6d794a0f96003e88f8c13
-      size: 105421
+      md5: 6770b06b421edc61a976ae6b55d2a36e
+      size: 134082
     - path: data/out/ttp/m.json
       hash: md5
-      md5: 50fcc97762906736eca5d7ff2b00c256
+      md5: 4036074ccce83ca148b2459b2dba7afc
       size: 139
     - path: data/out/ttp/m_other.json
       hash: md5
-      md5: 7d5da0065a752540ed0a04198eebb25d
-      size: 562
+      md5: 4c55430ca0bd5ce630fb7120d3e1208d
+      size: 561
     - path: data/out/ttp/model.pkl
       hash: md5
-      md5: 1e716bb64500b40c37e384602e2d72eb
-      size: 875239
+      md5: dad6afdba3a6c300ef6e6a8890594f29
+      size: 1728215
     - path: data/out/ttp/opt_metric.csv
       hash: md5
-      md5: 00477c4a13e06f8b89e85af5e7c7827f
-      size: 1408029
+      md5: 5c1f3c163a1b60eb0c59b81fdcf6e4ba
+      size: 2002169
