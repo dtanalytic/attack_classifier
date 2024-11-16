@@ -11,3 +11,4 @@ pymystem3
 nltk
 ruamel.yaml
 scikit-learn
+deap

@@ -41,9 +41,9 @@ def get_toolbox(N):
 
 
 
-    toolbox.register("select", tools.selTournament, tournsize=3)
+    toolbox.register("select", tools.selTournament, tournsize=5)
     toolbox.register("mate", gp.cxOnePoint)
-    toolbox.register("expr_mut", gp.genFull, min_=0, max_=0)
+    toolbox.register("expr_mut", gp.genFull, min_=0, max_= 0)
     toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
     toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=3))
     toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=3))
