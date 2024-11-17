@@ -25,6 +25,8 @@ prep_text:
   stem_lemm: stem    # stem or null
   ttp_counts_thresh: 15
   labelled_text_only: false
+  include_chatgpt_aug: true
+  chatgpt_dn: 'data/external/chatgpt'
   prep_fn: data/interim/prep_df.csv
   mlb_fn: data/interim/mlb.pkl
   ttp_mlb_fn: 'data/interim/ttp/mlb.pkl'

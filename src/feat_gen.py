@@ -8,7 +8,7 @@ from ruamel.yaml import YAML
 
 import sys
 sys.path.append('.')
-
+from src.funcs import set_seed
 from src.spec_funcs import calc_select_feat_matr
 
 
@@ -17,7 +17,8 @@ from src.spec_funcs import calc_select_feat_matr
 def main(config_path):
     
     conf = YAML().load(open(config_path))
-
+    set_seed(conf['seed'])
+    
     mlb = joblib.load(conf['prep_text']['mlb_fn'])
     data = pd.read_csv(conf['prep_text']['prep_fn'])
     data['labels'] = data['labels'].map(lambda x: eval(x))

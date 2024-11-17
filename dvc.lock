@@ -98,14 +98,15 @@ stages:
       size: 6884178
     - path: src/prep.py
       hash: md5
-      md5: cf93ec66e5f796603099f66dc6fa4d75
-      size: 5835
+      md5: 2e136e66b31d8ddf89b1a641bf63ae9a
+      size: 6141
     - path: src/spec_funcs.py
       hash: md5
       md5: ba6e4fcee652c7e6160bffdb26204e74
       size: 18413
     params:
       params.yaml:
+        prep_text.include_chatgpt_aug: false
         prep_text.labelled_text_only: false
         prep_text.lower: false
         prep_text.max_len_token: 10
@@ -118,31 +119,31 @@ stages:
     outs:
     - path: data/interim/mlb.pkl
       hash: md5
-      md5: cbf4aa20894e5de68c92c9b9f149b672
-      size: 1380
+      md5: 8ccf24f5e99e1422f0e73d64736ec68b
+      size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
       md5: bf09555e4c7ba1170bef1f2b6d756077
       size: 88920023
     - path: data/interim/ttp/mlb.pkl
       hash: md5
-      md5: 1f3c408504a91f8704c2bee413dcb01f
-      size: 3478
+      md5: 612cc70eba25da613dd3fcc86704e5ca
+      size: 3484
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
     - path: data/interim/mlb.pkl
       hash: md5
-      md5: cbf4aa20894e5de68c92c9b9f149b672
-      size: 1380
+      md5: 8ccf24f5e99e1422f0e73d64736ec68b
+      size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
       md5: bf09555e4c7ba1170bef1f2b6d756077
       size: 88920023
     - path: src/feat_gen.py
       hash: md5
-      md5: 279042be57417a698cdf1500bd34857d
-      size: 886
+      md5: 50bed1dbe5499a9a8a2c709c1fb3fbef
+      size: 947
     - path: src/spec_funcs.py
       hash: md5
       md5: ba6e4fcee652c7e6160bffdb26204e74
@@ -172,7 +173,7 @@ stages:
       size: 49946189
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 00629399266c8583ac3853b98e1d0f77
+      md5: 41dd10ced5187e808598cbfabb738155
       size: 118037
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
@@ -187,7 +188,7 @@ stages:
       size: 49946189
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 00629399266c8583ac3853b98e1d0f77
+      md5: 41dd10ced5187e808598cbfabb738155
       size: 118037
     - path: src/feat_eng.py
       hash: md5

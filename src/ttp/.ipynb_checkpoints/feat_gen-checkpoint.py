@@ -13,6 +13,7 @@ from sentence_transformers import SentenceTransformer
 
 import sys
 sys.path.append('.')
+from src.funcs import set_seed
 
 from src.spec_funcs import calc_select_feat_matr
 from src.aug_sent import get_aug_sent_l, make_mask_list, filter_sent_distance
@@ -25,6 +26,9 @@ def main(config_path):
     
     conf_ttp = YAML().load(open(config_path))
     conf = YAML().load(open('params.yaml'))
+    
+    set_seed(conf['seed'])
+
     conf_dop = YAML().load(open('dvc_pipes/bert_ttp/params_bert_ttp.yaml'))
 
     # чтобы новый конф работал вместо старого в функции

@@ -51,6 +51,7 @@ stages:
     - prep_text.max_len_token
     - prep_text.save_only_words
     - prep_text.stem_lemm
+    - prep_text.include_chatgpt_aug
     - prep_text.ttp_counts_thresh  
     - prep_text.labelled_text_only
     outs:

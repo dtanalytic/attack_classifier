@@ -6,7 +6,7 @@ import click
 from sklearn.preprocessing import MultiLabelBinarizer
 from pandarallel import pandarallel
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
-
+import os
 
 from ruamel.yaml import YAML
 
@@ -116,7 +116,7 @@ def main(config_path):
     
     val_idx = val_ts_idx[val_idx]
     ts_idx = val_ts_idx[ts_idx]
-
+    
     data['split'] = 'tr'
     if conf['val_only_proc']:
         data.loc[(data.index.isin(val_idx)) & ((data['is_proc']==True)|(data['is_proc'].isna())), 'split'] = 'val'
@@ -124,9 +124,11 @@ def main(config_path):
     else:
         data.loc[data.index[val_idx], 'split'] = 'val'
         data.loc[data.index[ts_idx], 'split'] = 'ts'
-    
+    if conf['prep_text']['include_chatgpt_aug']:
+        DN = conf['prep_text']['chatgpt_dn']   
+        synth_df = pd.concat([pd.read_csv(f'{DN}/{it}') for it in os.listdir(DN) if not '.ipynb_checkpoints' in it], ignore_index=True)
+        data = pd.concat([data, synth_df], ignore_index=True)    
     data.to_csv(conf['prep_text']['prep_fn'], index=False)
-
 
 if __name__=='__main__':
 
