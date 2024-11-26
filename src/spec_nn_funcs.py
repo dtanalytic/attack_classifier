@@ -63,9 +63,9 @@ class TextModelClass(torch.nn.Module):
         super().__init__()
         self.bert = bert_model
         self.mode = mode
-        self.lin = torch.nn.Linear(768, 768)
+        self.lin = torch.nn.Linear(768, 300)
         self.drop_out = torch.nn.Dropout(dropout_ratio)
-        self.lin_out = torch.nn.Linear(768, classnum)
+        self.lin_out = torch.nn.Linear(300, classnum)
 
     def forward(self, X):
 

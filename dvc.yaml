@@ -43,6 +43,7 @@ stages:
     - src/prep.py
     - src/spec_funcs.py
     - ${get_data.data_filt_fn}
+    - ${prep_text.chatgpt_dn}
     params:
     - prep_text.lower
     - prep_text.replace_entities
