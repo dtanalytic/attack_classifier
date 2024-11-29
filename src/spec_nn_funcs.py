@@ -307,7 +307,6 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
                                                         np.array(res_tr_df[thresh_col].values.tolist()), average='macro')
     
     
-    
     _, res_l = metric_multi(np.array(error_df['y'].tolist()), np.array(error_df[thresh_col].tolist()), f1_score)
     
     pd.DataFrame({'qual':res_l, 'class':mlb.classes_}).sort_values(by='qual').to_csv(conf_dop['nn_bert']['by_class_metric_fn'], index=False)
