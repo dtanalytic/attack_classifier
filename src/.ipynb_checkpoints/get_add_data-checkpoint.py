@@ -39,8 +39,6 @@ def main(config_path):
     tram_df = tram_df.drop_duplicates(subset='sentence')
     
     
-
-    
     if conf['get_data']['use_alt_mitre']:
         par_d = mitre_attack_df.explode('labels').set_index('labels')['par_name'].to_dict()
         mitr_alt_data = pd.read_csv(conf['get_data']['mitre_alt_fn'])
