@@ -318,11 +318,13 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     plt.figure(figsize=fig_size1)
 
-    labels = np.sort(conf_df[target_col].unique())
+    # labels = np.sort(conf_df[target_col].unique())
+    labels = np.sort(list(set(conf_df[target_col].unique().tolist()+conf_df['prob_label'].unique().tolist())))
+
     cm = confusion_matrix(y_true = conf_df[target_col], y_pred = conf_df['prob_label'], 
                           labels=labels,
                           normalize=None)
-    
+
     draw_df = pd.concat([pd.DataFrame(cm, index=labels, columns=labels),
                         pd.DataFrame([cm.sum(axis=0)], columns=labels, index=['pred_sum'])])\
                 .assign(true_sum=lambda x: x.sum(axis=1))
@@ -334,7 +336,8 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     plt.savefig(conf_dop['nn_bert']['conf_matrix_fn'])
 
 
-    er_df = conf_df.query(f'{target_col}!=prob_label and prob_label!="empty" and {target_col}!="empty"')
+    # er_df = conf_df.query(f'{target_col}!=prob_label and prob_label!="empty" and {target_col}!="empty"')
+    er_df = conf_df.query(f'{target_col}!=prob_label')
     if target_col == 'ttp':
         er_df = er_df.query(f'{target_col}!= "rare" and prob_label!="rare"')
     

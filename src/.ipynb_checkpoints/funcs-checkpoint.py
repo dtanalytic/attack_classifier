@@ -204,10 +204,13 @@ def get_pred_thresh(y_true, proba, opt_metric, thresh_space_l=[]):
     res_metrics_l = []
     if len(thresh_space_l)==0:
         thresh_space_l = np.arange(0.05, 0.95, 0.05)
+    # if y_true.sum()==0:
+    #     thresh=1
+    # else:
     for thresh in thresh_space_l:
         # import pdb;pdb.set_trace()
         pred = (proba>thresh).astype(int)
-        p, r, f1, sup = [it[1] for it in precision_recall_fscore_support(y_true, pred)]
+        p, r, f1, sup = [it[1] if y_true.sum()!=0 else it[0] for it in precision_recall_fscore_support(y_true, pred)]
     
         res_metrics_df = pd.DataFrame({'precision':p, 'recall':r, 'f1':f1, 'sup':sup}, index=[thresh])
         res_metrics_l.append(res_metrics_df)
@@ -236,25 +239,48 @@ def get_opt_thresh(y_true, probas, mlb, opt_metric, thresh_space_l=[], dump_fn=N
         
     return thresh_l
 
-def get_conf_df(error_df, target_col):
-
-    # считаем матрицу расхождений
-    df_l = []
-    for idx in range(error_df[[target_col, 'prob_label']].shape[0]):
-        row = error_df[[target_col, 'prob_label','val_idx']].iloc[idx]
-        row_l = []
-        good_s = set(row[target_col]).intersection(row['prob_label'])
-        if len(good_s)>0:
-            for it in good_s:
-                row_l.append(pd.DataFrame({target_col:it, 'prob_label':it}, index=[row.val_idx]))
-                
-        in_labels_s = set(row[target_col]).difference(row['prob_label'])
-        in_probas_s = set(row['prob_label']).difference(row[target_col])
-
-        row_l.append(pd.DataFrame({target_col:[in_labels_s], 'prob_label':[in_probas_s]}, index=[row.val_idx]))
+def get_conf_df(error_df, target_col, mode='all'):
+    '''
+    предсказано (ttp1,ttp2, ttp4), истинно - (ttp1,ttp2,ttp3)
+в таблицу сооветствий между предсказаниями и целями будет добавлено 3 строки (2 как правильно угаданные и 1 расхождение между классами):
+    mode - cut
+    ttp1 ttp1
+    ttp2 ttp2
+    ttp3 ttp4
+    mode - all 
+    ttp1 ttp1
+    ttp2 ttp2
+    ttp3 ttp1
+    ttp3 ttp2
+    ttp3 ttp4
+    ttp4 ttp1
+    ttp4 ttp2
+    ttp4 ttp3
     
-        df_l.append(pd.concat(row_l))
-    conf_df = pd.concat(df_l).explode(target_col).explode('prob_label').fillna('empty').reset_index()
+    '''
+    if mode=='cut':
+        # считаем матрицу расхождений
+        df_l = []
+        for idx in range(error_df[[target_col, 'prob_label']].shape[0]):
+            row = error_df[[target_col, 'prob_label','val_idx']].iloc[idx]
+            row_l = []
+            good_s = set(row[target_col]).intersection(row['prob_label'])
+            if len(good_s)>0:
+                for it in good_s:
+                    row_l.append(pd.DataFrame({target_col:it, 'prob_label':it}, index=[row.val_idx]))
+                    
+            in_labels_s = set(row[target_col]).difference(row['prob_label'])
+            in_probas_s = set(row['prob_label']).difference(row[target_col])
+    
+            if not (len(in_probas_s)==0 and len(in_labels_s)==0 and len(good_s)>0):
+                row_l.append(pd.DataFrame({target_col:[in_labels_s], 'prob_label':[in_probas_s]}, index=[row.val_idx]))
+        
+            df_l.append(pd.concat(row_l))
+        conf_df = pd.concat(df_l).explode(target_col).explode('prob_label').fillna('empty').reset_index()
+        
+    if mode=='all':
+        conf_df = error_df[[target_col, 'prob_label','val_idx']].explode(target_col).explode('prob_label').fillna('empty')\
+        .rename(columns={'val_idx':'index'})
     
     return conf_df
     

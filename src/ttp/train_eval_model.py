@@ -25,7 +25,7 @@ def main(config_path):
     conf_ttp['feat_gen'] = conf_ttp['feat_gen_ttp']
     conf_ttp['feat_eng'] = conf_ttp['feat_eng_ttp']
 
-    set_seed(conf['seed'])
+    
 
     train_eval_classic(conf_ttp, target_col='ttp', fig_size1=(60,40), fig_size2=(20,12), thresh_space_l=np.arange(0.005, 1, 0.005))
 

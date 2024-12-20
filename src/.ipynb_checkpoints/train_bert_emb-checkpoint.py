@@ -17,8 +17,8 @@ def main(config_path_dop):
 
     conf_dop = YAML().load(open(config_path_dop))
 
-    train_eval_bert(conf, conf_dop, target_col='labels', fig_size1=(15,8), fig_size2=(20,12), thresh_space_l=[])
-
+    # train_eval_bert(conf, conf_dop, target_col='labels', fig_size1=(15,8), fig_size2=(20,12), thresh_space_l=[])
+    train_eval_bert(conf, conf_dop, target_col='labels', fig_size1=(30,15), fig_size2=(20,12), thresh_space_l=[])
 
 if __name__=='__main__':
 

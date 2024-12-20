@@ -20,7 +20,7 @@ from src.constants import (regexp_email, regexp_cve, regexp_url, regexp_domain, 
                             regexp_coins_doge, regexp_coins_dash, regexp_coins_xmr, regexp_coins_neo, regexp_coins_xrp)
 from src.spec_funcs import replace_entities
 
-pandarallel.initialize(progress_bar=True, nb_workers=0)
+# pandarallel.initialize(progress_bar=True, nb_workers=0)
 
 @click.command()
 @click.argument('config_path')
@@ -124,6 +124,34 @@ def main(config_path):
     else:
         data.loc[data.index[val_idx], 'split'] = 'val'
         data.loc[data.index[ts_idx], 'split'] = 'ts'
+
+    if conf['val_nmitr']:
+
+        mitre_sel = data['url'].str.contains('https://attack.mitre.org', na=False)
+        other_nempty_sel = (~mitre_sel) & (data['ttp'].map(lambda x: len(x)>0))
+        other_empty_sel = (~mitre_sel) & (data['ttp'].map(lambda x: len(x)==0))
+        
+        tr_idx = data[mitre_sel].index
+        val_idx = data[~mitre_sel].index
+        data['split'] = 'val'
+
+        # пустых в пропорции столько, сколько непустых
+        frac = mitre_sel.sum()/(mitre_sel.sum()+other_nempty_sel.sum())
+        
+        N = other_empty_sel.sum()
+        seq_idx_empty_tr = set(np.random.choice(range(N), size=int(N*frac), replace=False))
+        seq_idx_empty_val = set(range(N)) - seq_idx_empty_tr
+        
+        empty_idx = data.loc[other_empty_sel].index
+        
+        empty_val_idx = empty_idx.values[list(seq_idx_empty_val)].tolist()
+        tr_mod_idx = tr_idx.tolist() + empty_idx.values[list(seq_idx_empty_tr)].tolist()
+        
+        data.loc[tr_mod_idx, 'split'] = 'tr'
+        
+    if conf['val_nempty']:
+        data = data[~((data['ttp'].map(lambda x: len(x)==0))&(data['split']=='val'))]
+    
     if conf['prep_text']['include_chatgpt_aug']:
         DN = conf['prep_text']['chatgpt_dn']   
         synth_df = pd.concat([pd.read_csv(f'{DN}/{it}') for it in os.listdir(DN) if not '.ipynb_checkpoints' in it], ignore_index=True)

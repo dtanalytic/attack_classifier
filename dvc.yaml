@@ -55,6 +55,8 @@ stages:
     - prep_text.include_chatgpt_aug
     - prep_text.ttp_counts_thresh  
     - prep_text.labelled_text_only
+    - val_nmitr
+    - val_nempty
     outs:
     - ${prep_text.prep_fn}
     - ${prep_text.mlb_fn}

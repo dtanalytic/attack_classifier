@@ -8,6 +8,8 @@ import os
 
 from ruamel.yaml import YAML
 
+from sklearn.preprocessing import MultiLabelBinarizer
+
 
 import sys
 sys.path.append('.')
@@ -29,7 +31,11 @@ def train():
     # получаем данные митра
     conf = YAML().load(open('params.yaml'))
 
-    load_external_data(conf)
+    df = load_external_data(conf)
+
+    df = enc_classes(df)
+    
+    # df.to_csv(conf['prep_text']['prep_fn'], index=False)
 
 
     
@@ -95,7 +101,6 @@ def load_external_data(conf):
 
     # еще есть скрытые, у которых отличия только в паре слов или символов
     df['shadow_duples'] = df.sentence.str[:40]+ df.sentence.str[50] + df.sentence.str[-40:]
-    df[df['shadow_duples'].duplicated(keep=False)].sort_values(by='sentence').to_csv('data/artifacts/shadow_duples.csv', index=False)
     df = df.drop_duplicates('shadow_duples').drop(columns='shadow_duples')
 
     # при разбиении на абзацы описаний вылезают дубли
@@ -119,27 +124,63 @@ def load_external_data(conf):
 
     # --------------------------
     # prep.py
-    data = df
     
     if conf['prep_text']['replace_entities']:
         # начиная с python 3.7 порядок ключей сохраняется, поэтому можно не упорядочивать
         pat_d = {it:globals()[it] for it in globals() if 'regexp_' in it}
-        data['sentence'] = data['sentence'].map(lambda x: replace_entities(x, pat_d))
+        df['sentence'] = df['sentence'].map(lambda x: replace_entities(x, pat_d))
 
     
     # другие названия в квадратных скобках убираем
-    data['sentence'] = data['sentence'].str.replace(r'\[(\w+)\]', r'\1', regex=True)
+    df['sentence'] = df['sentence'].str.replace(r'\[(\w+)\]', r'\1', regex=True)
 
 
     # после того, как убрал названия в круглых скобках вылезли дубли, например, в отчете та же формулировка, как
     # и в первоисточнике на митр только уже без круглых скобок
-    data = data.drop_duplicates(subset=['sentence']).reset_index(drop=True)
+    df = df.drop_duplicates(subset=['sentence']).reset_index(drop=True)
     
     symb_l = ['\xe4', '\u202f', '\u2192']
     for symb in symb_l:
-        data['sentence'] = data['sentence'].str.replace(symb, '')
+        df['sentence'] = df['sentence'].str.replace(symb, '')
 
+    if conf['prep_text']['include_chatgpt_aug']:
+        DN = conf['prep_text']['chatgpt_dn']   
+        synth_df = pd.concat([pd.read_csv(f'{DN}/{it}') for it in os.listdir(DN) if not '.ipynb_checkpoints' in it], ignore_index=True)
+        synth_df['labels'] = synth_df['labels'].map(lambda x: eval(x))
+        synth_df['origin_labels'] = synth_df['origin_labels'].map(lambda x: eval(x))
+        synth_df['origin_ttp'] = synth_df['origin_ttp'].map(lambda x: eval(x))
+        df = pd.concat([df, synth_df], ignore_index=True)    
     
-    # шо делать с ттп
-    ttp_counts_thresh = conf['prep_text']['ttp_counts_thresh']
+    
+    return df
+
+def enc_classes(df, conf, use_rare_ttp):
+
+    mlb_ttp = MultiLabelBinarizer()
+    
+    if use_rare_ttp:
+        ttp_counts_thresh = conf['prep_text']['ttp_counts_thresh']
+        ttp_l = df['origin_labels'].explode('origin_labels').value_counts().loc[lambda x: x>ttp_counts_thresh].index.tolist()    
+        mlb_ttp.fit([[c] for c in ttp_l+['rare']])
+        df['ttp'] = df['origin_labels'].map(lambda x: [it if it in ttp_l else 'rare' for it in x] )
+    else:
+        ttp_l = df['origin_labels'].explode('origin_labels').value_counts().index.tolist()    
+        mlb_ttp.fit([[c] for c in ttp_l])
+        df['ttp'] = df['origin_labels']
+    
+    df['target_ttp'] = mlb_ttp.transform(df['ttp']).tolist()
+
+
+    CLASSES = df.explode('labels')['labels'].dropna().unique()
+    mlb = MultiLabelBinarizer(classes=CLASSES)
+    mlb.fit([[c] for c in CLASSES])
+
+
+    df['target'] = mlb.transform(df['labels']).tolist()
+
+    if not use_rare_ttp:
+        joblib.dump(mlb, conf['prep_text']['mlb_fn'])
+        joblib.dump(mlb_ttp, conf['prep_text']['ttp_mlb_fn'])
+        
+    return df
 
