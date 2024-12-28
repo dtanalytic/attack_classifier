@@ -81,8 +81,7 @@ class TextModelClass(torch.nn.Module):
 
         return out
 
-
-def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_space_l=[]):
+def train_bert(data, mlb, conf, conf_dop, target_col, thresh_space_l):
     
     TRAIN_BATCH_SIZE = conf_dop['nn']['batch_size']
     VALID_BATCH_SIZE = conf_dop['nn']['batch_size']
@@ -103,19 +102,12 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     bert_type = conf_dop['nn_bert']['bert_type']
 
-    if target_col=='ttp':
-        mlb = joblib.load(conf['prep_text']['ttp_mlb_fn'])
-    else:
-        mlb = joblib.load(conf['prep_text']['mlb_fn'])
 
-    data = pd.read_csv(conf['feat_gen']['data_fn'])
-    
-    data['target'] = data['target'].map(lambda x: eval(x))
-    data[target_col] = data[target_col].map(lambda x: eval(x))
+    thresh_col = 'y_p'
     tr_idx = data.query('split=="tr"').index
-    val_idx = data.query('split=="val"').index
-    ts_idx = data.query('split=="ts"').index
-
+    if set(data['split'].unique())!=set(['tr']):
+        val_idx = data.query('split=="val"').index
+        ts_idx = data.query('split=="ts"').index
   
     if bert_type == 'secbert_plus':
         
@@ -145,13 +137,17 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
                           'padding':'max_length', 'max_length':MAX_SEQ_LENGTH}
 
     tr_ds = TextDFDataset(data.query('split=="tr"').reset_index(drop=True), tokenizer=tokenizer, tokenizer_opts=tokenizer_opts)
-    val_ds = TextDFDataset(data.query('split=="val"').reset_index(drop=True), tokenizer=tokenizer, tokenizer_opts=tokenizer_opts)
-    ts_ds = TextDFDataset(data.query('split=="ts"').reset_index(drop=True), tokenizer=tokenizer, tokenizer_opts=tokenizer_opts)
-
     tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = True, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
-    val_ld = DataLoader(val_ds, batch_size = VALID_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
-    ts_ld = DataLoader(ts_ds, batch_size = VALID_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
 
+    if set(data['split'].unique())!=set(['tr']):
+        val_ds = TextDFDataset(data.query('split=="val"').reset_index(drop=True), tokenizer=tokenizer, tokenizer_opts=tokenizer_opts)
+        ts_ds = TextDFDataset(data.query('split=="ts"').reset_index(drop=True), tokenizer=tokenizer, tokenizer_opts=tokenizer_opts)
+        val_ld = DataLoader(val_ds, batch_size = VALID_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
+        ts_ld = DataLoader(ts_ds, batch_size = VALID_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
+
+    else:
+        val_ld = None
+        
     model = TextModelClass(bert_model, mode=mode, classnum=len(mlb.classes_), dropout_ratio=DROPOUT_RATIO)
     model = model.to(DEVICE)
 
@@ -162,7 +158,6 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     loss_fn = torch.nn.BCEWithLogitsLoss()
     
     optimizer = torch.optim.Adam(params =  model.parameters(), lr=LEARNING_RATE, weight_decay=l2)
-    # optimizer = torch.optim.RMSprop(model.parameters(), lr=LEARNING_RATE)
     
     scheduler1 = ExponentialLR(optimizer, gamma=conf_dop['nn']['exp_gamma'] )
     scheduler2 = MultiStepLR(optimizer, milestones=conf_dop['nn']['milestone_l'], gamma=conf_dop['nn']['milestone_gamma'])
@@ -209,7 +204,7 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
         scheduler1.step()
         scheduler2.step()
         
-        if epoch%val_iter_num==0:
+        if (set(data['split'].unique())!=set(['tr'])) and (epoch%val_iter_num==0):
             model.eval()
             val_batch_num = len(val_ld)
             val_loss_epoch = 0
@@ -232,14 +227,85 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
         # pr_auc_tr не будет совпадать с оценкой по всему tr_ld, так как при копирования out из batch_tr у нас результаты разные 
         # из-за backpropagation
-        loss_d[epoch] = {'log_loss_tr_batch':tr_loss_epoch/tr_batch_num,
-                          'log_loss_val_batch':val_loss_epoch/val_batch_num,
-                        'pr_auc_batch':pr_auc/val_batch_num,
-                         'log_loss_val':metric_multi(np.array(res_d['target']), np.array(res_d['pred']), log_loss)[0],
-                        'log_loss_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), log_loss)[0],
-                         'pr_auc_val':metric_multi(np.array(res_d['target']), np.array(res_d['pred']), average_precision_score)[0],
-                        'pr_auc_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), average_precision_score)[0]}
+        if set(data['split'].unique())!=set(['tr']):
+            loss_d[epoch] = {'log_loss_tr_batch':tr_loss_epoch/tr_batch_num,
+                              'log_loss_val_batch':val_loss_epoch/val_batch_num,
+                            'pr_auc_batch':pr_auc/val_batch_num,
+                             'log_loss_val':metric_multi(np.array(res_d['target']), np.array(res_d['pred']), log_loss)[0],
+                            'log_loss_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), log_loss)[0],
+                             'pr_auc_val':metric_multi(np.array(res_d['target']), np.array(res_d['pred']), average_precision_score)[0],
+                            'pr_auc_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), average_precision_score)[0]}
+        else:
+            loss_d[epoch] = {'log_loss_tr_batch':tr_loss_epoch/tr_batch_num,
+                            'log_loss_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), log_loss)[0],
+                            'pr_auc_tr':metric_multi(np.array(res_d['tr_target']), np.array(res_d['tr_pred']), average_precision_score)[0]}
         print(f'epoch num - {epoch}')
+
+
+        
+    tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
+    res_tr = get_preds(model, ld=tr_ld)
+
+    if set(data['split'].unique())!=set(['tr']):
+        res_val = get_preds(model, ld=val_ld)
+        Y_val_proba = np.array(res_val['pred'])
+        Y_val = np.array(data.loc[val_idx, 'target'].values.tolist())
+    else:
+        Y_val = pd.Series([])
+        Y_val_proba = pd.Series([])
+    
+    # кейс обучение bert_ttp или обучения_валидации bert_ttp
+    if conf_dop['nn_bert']['thresh_split']=="tr":
+        y_thresh = np.array(data.loc[tr_idx, 'target'].values.tolist())
+        y_thresh_probas = np.array(res_tr['pred'])
+        thresh_l = get_opt_thresh(y_true = y_thresh, probas = y_thresh_probas, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
+    else:
+        # кейс обучения_валидации bert
+        if set(data['split'].unique())!=set(['tr']):
+            y_thresh = Y_val
+            y_thresh_probas = Y_val_proba
+            thresh_l = get_opt_thresh(y_true = y_thresh, probas = y_thresh_probas, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
+            joblib.dump(thresh_l, conf_dop['nn_bert']['thresh_l_fn'])
+        else:
+        # кейс обучения bert
+            thresh_l = joblib.load(conf_dop['nn_bert']['thresh_l_fn'])
+
+    res_tr_df = pd.DataFrame({'y_proba':np.array(res_tr['pred']).tolist(), 'y':data.loc[tr_idx, 'target'].values.tolist()})
+    res_tr_df[thresh_col] = res_tr_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
+    
+    
+    p_tr_micro, r_tr_micro, f1_tr_micro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
+                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='micro')
+    p_tr_macro, r_tr_macro, f1_tr_macro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
+                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='macro')
+
+    return model, loss_d, thresh_l, Y_val, Y_val_proba, val_ld, (p_tr_micro, r_tr_micro, f1_tr_micro, p_tr_macro, r_tr_macro, f1_tr_macro)
+
+
+def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_space_l=[]):
+
+    # переставить
+    if target_col=='ttp':
+        mlb = joblib.load(conf['prep_text']['ttp_mlb_fn'])
+    else:
+        mlb = joblib.load(conf['prep_text']['mlb_fn'])
+
+    data = pd.read_csv(conf['feat_gen']['data_fn'])
+    # ----------
+    data['target'] = data['target'].map(lambda x: eval(x))
+    data[target_col] = data[target_col].map(lambda x: eval(x))
+
+    name = os.path.basename(conf_dop['nn_bert']['model_fn'])
+    dirname = os.path.dirname(conf_dop['nn_bert']['model_fn'])
+    bert_type = conf_dop['nn_bert']['bert_type']
+    tr_idx = data.query('split=="tr"').index
+    val_idx = data.query('split=="val"').index
+    ts_idx = data.query('split=="ts"').index
+        
+    model, loss_d, thresh_l, Y_val, Y_val_proba, val_ld, tr_stat = train_bert(data, mlb, conf, conf_dop, target_col, thresh_space_l)
+
+    p_tr_micro, r_tr_micro, f1_tr_micro, p_tr_macro, r_tr_macro, f1_tr_macro = tr_stat
+
     with open(conf_dop['nn_bert']['metrics_dop_fn'], 'wt') as f_wr:
         json.dump(loss_d, f_wr)
 
@@ -261,22 +327,12 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
     plt.legend()
     plt.savefig(conf_dop['nn_bert']['pr_auc_fig_fn'])
 
-    res_val = get_preds(model, ld=val_ld)
-    tr_ld = DataLoader(tr_ds, batch_size = TRAIN_BATCH_SIZE, shuffle = False, collate_fn = DataCollatorWithPadding(tokenizer=tokenizer))
-    res_tr = get_preds(model, ld=tr_ld)
+
+    if Y_val.shape[0]>0:
+        res_val = get_preds(model, ld=val_ld)
+        Y_val_proba = np.array(res_val['pred'])
+        Y_val = np.array(data.loc[val_idx, 'target'].values.tolist())
     
-    Y_val_proba = np.array(res_val['pred'])
-    Y_val = np.array(data.loc[val_idx, 'target'].values.tolist())
-
-    if conf_dop['nn_bert']['thresh_split']=="tr":
-        y_thresh = np.array(data.loc[tr_idx, 'target'].values.tolist())
-        y_thresh_probas = np.array(res_tr['pred'])  
-    else:
-        y_thresh = Y_val
-        y_thresh_probas = Y_val_proba
-        
-    thresh_l = get_opt_thresh(y_true = y_thresh, probas = y_thresh_probas, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
-
     res_df = pd.DataFrame()
     res_df['y'] = Y_val.tolist()
     res_df['y_proba'] = Y_val_proba.tolist()
@@ -295,18 +351,6 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     # res_tr_df = pd.DataFrame({'y_proba':np.array(res_d['tr_pred']).tolist(), 'y':np.array(res_d['tr_target']).tolist()})
 
-
-    res_tr_df = pd.DataFrame({'y_proba':np.array(res_tr['pred']).tolist(), 'y':data.loc[tr_idx, 'target'].values.tolist()})
-    
-    res_tr_df[thresh_col] = res_tr_df['y_proba'].map(lambda x: [int(val>=thresh) for val, thresh in zip(x, thresh_l)])
-    
-    
-    p_tr_micro, r_tr_micro, f1_tr_micro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
-                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='micro')
-    p_tr_macro, r_tr_macro, f1_tr_macro, sup = precision_recall_fscore_support(np.array(res_tr_df['y'].values.tolist()), 
-                                                        np.array(res_tr_df[thresh_col].values.tolist()), average='macro')
-    
-    
     _, res_l = metric_multi(np.array(error_df['y'].tolist()), np.array(error_df[thresh_col].tolist()), f1_score)
     
     pd.DataFrame({'qual':res_l, 'class':mlb.classes_}).sort_values(by='qual').to_csv(conf_dop['nn_bert']['by_class_metric_fn'], index=False)
@@ -329,7 +373,7 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
                         pd.DataFrame([cm.sum(axis=0)], columns=labels, index=['pred_sum'])])\
                 .assign(true_sum=lambda x: x.sum(axis=1))
     
-    sns.heatmap(draw_df, annot=True, fmt='d', cmap='viridis', cbar=False)
+    sns.heatmap(draw_df, annot=True, fmt='d', cmap='viridis', cbar=False, vmin=-1, vmax=2)
     
     plt.xlabel('Predicted label')
     plt.ylabel('True label')
@@ -345,7 +389,7 @@ def train_eval_bert(conf, conf_dop, target_col, fig_size1, fig_size2, thresh_spa
 
     plt.figure(figsize=fig_size2)
     
-    sns.heatmap(heat_df, annot=True, cbar=False)
+    sns.heatmap(heat_df, annot=True, cbar=False, vmin=-1, vmax=2)
     plt.savefig(conf_dop['nn_bert']['conf_matrix_main_er_fn'])
 
     with open(conf_dop['nn_bert']['add_metrics_fn'], 'wt') as f_wr:

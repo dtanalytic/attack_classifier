@@ -121,8 +121,8 @@ stages:
         prep_text.stem_lemm: stem
         prep_text.stop_words: false
         prep_text.ttp_counts_thresh: 15
-        val_nempty: true
-        val_nmitr: true
+        val_nempty: false
+        val_nmitr: false
     outs:
     - path: data/interim/mlb.pkl
       hash: md5
@@ -130,8 +130,8 @@ stages:
       size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
-      md5: 22b424d71420157312bb78aa9dc1faaf
-      size: 80101174
+      md5: 246b373823b6e9ca93695a80e41d2cd7
+      size: 89530206
     - path: data/interim/ttp/mlb.pkl
       hash: md5
       md5: 3108e14e036c3ff632a2d7b4612d2d14
@@ -145,8 +145,8 @@ stages:
       size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
-      md5: 22b424d71420157312bb78aa9dc1faaf
-      size: 80101174
+      md5: 246b373823b6e9ca93695a80e41d2cd7
+      size: 89530206
     - path: src/feat_gen.py
       hash: md5
       md5: 50bed1dbe5499a9a8a2c709c1fb3fbef
@@ -172,31 +172,31 @@ stages:
     outs:
     - path: data/interim/data_df.csv
       hash: md5
-      md5: 7060410bae0f7873e86044a15f52aacd
-      size: 64294336
+      md5: e915bde20f5180cb869015bb1178b6f1
+      size: 71858123
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: ca3179db612385687af22f95d968f415
-      size: 47191210
+      md5: 6db0f2ebe4b511321abac994340ef8fb
+      size: 49975120
     - path: data/interim/vec.pkl
       hash: md5
-      md5: da04e590406eb0c33afa6a4b72e8b655
-      size: 136212
+      md5: fa4a8e7fd4ed87d466495b974d2b48f3
+      size: 119905
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
     - path: data/interim/data_df.csv
       hash: md5
-      md5: 7060410bae0f7873e86044a15f52aacd
-      size: 64294336
+      md5: e915bde20f5180cb869015bb1178b6f1
+      size: 71858123
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: ca3179db612385687af22f95d968f415
-      size: 47191210
+      md5: 6db0f2ebe4b511321abac994340ef8fb
+      size: 49975120
     - path: data/interim/vec.pkl
       hash: md5
-      md5: da04e590406eb0c33afa6a4b72e8b655
-      size: 136212
+      md5: fa4a8e7fd4ed87d466495b974d2b48f3
+      size: 119905
     - path: src/feat_eng.py
       hash: md5
       md5: 8ff46456063924cf11170b703fe22931
@@ -212,15 +212,15 @@ stages:
     outs:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 83f3941a7d26c7438b49083b4cd39d3e
-      size: 47301716
+      md5: 3023f295055bdb5ec8b853ae9a711301
+      size: 50098810
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 83f3941a7d26c7438b49083b4cd39d3e
-      size: 47301716
+      md5: 3023f295055bdb5ec8b853ae9a711301
+      size: 50098810
     - path: src/train_eval_model.py
       hash: md5
       md5: 1c810a84bc50a31b2fb11424c0b7c3f2
@@ -236,36 +236,36 @@ stages:
     outs:
     - path: data/out/by_class_metric.csv
       hash: md5
-      md5: c687f7c6a404bc915fb26d7d5dbc8823
-      size: 487
+      md5: 13db0f3c78f36a76e8ff3b193fc7a98d
+      size: 480
     - path: data/out/conf_df.csv
       hash: md5
-      md5: d6fd57a23e7509681a8cbc726e3f14d0
-      size: 343716
+      md5: e14aff62589e19eeacb1069a40908444
+      size: 247888
     - path: data/out/confusion_matrix.png
       hash: md5
-      md5: cb2cc5db99e6dea15fa4574f2a8b972f
-      size: 129027
+      md5: 11de3f986cb0ee4b4c72a736d2497d3d
+      size: 130560
     - path: data/out/confusion_matrix_main_er.png
       hash: md5
-      md5: 7719e519f0bc184d981c95475e164131
-      size: 107509
+      md5: a932b84314cd4759b905136303e57207
+      size: 112403
     - path: data/out/m.json
       hash: md5
-      md5: 4f46eba206ea60f30fb5162db2a7245f
-      size: 138
+      md5: 82d0770e5fd7ad1ee745f566a5ebca72
+      size: 137
     - path: data/out/m_other.json
       hash: md5
-      md5: 4917bacc19b777cd468787c5f49e702f
-      size: 559
+      md5: 93a3087aa71bba1e7ad579788707f7aa
+      size: 557
     - path: data/out/model.pkl
       hash: md5
-      md5: 6617803818598e8cbf489a2dd93e8735
-      size: 116986
+      md5: 99329782b58d6d8514221bc2269abf11
+      size: 111098
     - path: data/out/opt_metric.csv
       hash: md5
-      md5: 6385dbc2872a727c0bfcddf91232a483
-      size: 21154
+      md5: b8fa813b9ea87d8a90a3b2e1d83b7b2e
+      size: 21368
   train_bert_model:
     cmd: dvc repro dvc_pipes/bert/dvc.yaml
   train_ttp_classic_model:

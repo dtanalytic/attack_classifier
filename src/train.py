@@ -44,7 +44,6 @@ def load_external_data(conf):
     mitre_df, main_descr_df, proc_df = load_mitr(conf['get_data']['mitre_attack_fn'])
     mitre_attack_df = prep_mitr(main_descr_df, proc_df, conf)
     
-
     label2tactic = mitre_attack_df.set_index('labels')['kill_chain_tags'].to_dict()
     
     with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
@@ -59,9 +58,6 @@ def load_external_data(conf):
 
     mitre_attack_df = mitre_attack_df.assign(labels = mitre_attack_df['labels'].map(lambda x:[x]))
 
-    
-            
-    
     tram_df = pd.read_json(conf['get_data']['tram_fn']).drop(columns='doc_title')
     sel = tram_df.sentence.str.findall(';').str.len()>0
 
@@ -72,7 +68,6 @@ def load_external_data(conf):
     
     df = pd.concat([mitr_df, tram_df], ignore_index=True)
     
-
     DN = conf['get_data']['rep_dn']
     fns = [f'{DN}/{it}' for it in os.listdir(DN) if 'json' in it]
     
@@ -167,7 +162,9 @@ def enc_classes(df, conf, use_rare_ttp):
         ttp_l = df['origin_labels'].explode('origin_labels').value_counts().index.tolist()    
         mlb_ttp.fit([[c] for c in ttp_l])
         df['ttp'] = df['origin_labels']
-    
+
+    # maybe need to rename target before bert_ttp prediction, because uses same column
+    # data['target'] = mlb.transform(data[target_col]).tolist()
     df['target_ttp'] = mlb_ttp.transform(df['ttp']).tolist()
 
 
@@ -178,9 +175,10 @@ def enc_classes(df, conf, use_rare_ttp):
 
     df['target'] = mlb.transform(df['labels']).tolist()
 
+
     if not use_rare_ttp:
         joblib.dump(mlb, conf['prep_text']['mlb_fn'])
         joblib.dump(mlb_ttp, conf['prep_text']['ttp_mlb_fn'])
         
-    return df
+    return df, mlb, mlb_ttp
 

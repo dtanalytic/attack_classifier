@@ -68,6 +68,6 @@ train_eval_model:
 seed: 0
 val_ts_size: 0.15
 val_only_proc: false
-val_nmitr: true
-val_nempty: true
+val_nmitr: false
+val_nempty: false
 use_only_proc: false

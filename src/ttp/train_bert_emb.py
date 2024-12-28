@@ -25,7 +25,7 @@ def main(config_path_dop):
     conf_dop['nn'] = conf_dop['nn_ttp']
     conf_dop['nn_bert'] = conf_dop['nn_bert_ttp']
     # np.arange(0.005, 1, 0.005))
-    train_eval_bert(conf, conf_dop, target_col='ttp', fig_size1=(40,20), fig_size2=(20,12), thresh_space_l=np.arange(0.001, 1, 0.002))
+    train_eval_bert(conf, conf_dop, target_col='ttp', fig_size1=(70,50), fig_size2=(35,22), thresh_space_l=np.arange(0.001, 1, 0.002))
 
 
 if __name__=='__main__':
