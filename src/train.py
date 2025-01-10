@@ -9,6 +9,7 @@ import os
 from ruamel.yaml import YAML
 
 from sklearn.preprocessing import MultiLabelBinarizer
+import torch
 
 
 import sys
@@ -22,6 +23,11 @@ from src.constants import (regexp_email, regexp_cve, regexp_url, regexp_domain, 
                             regexp_coins_doge, regexp_coins_dash, regexp_coins_xmr, regexp_coins_neo, regexp_coins_xrp)
 from src.spec_funcs import replace_entities
 
+from src.funcs import set_seed
+from src.spec_nn_funcs import train_bert
+from src.aug_sent import add_aug_sents
+from src.spec_nn_funcs import TextDFDataset, TextModelClass, train_eval_bert
+
 
 def train():
     '''
@@ -30,14 +36,53 @@ def train():
     '''
     # получаем данные митра
     conf = YAML().load(open('params.yaml'))
+    set_seed(conf['seed'])
+    
+    conf_bert = YAML().load(open('dvc_pipes/bert/params_bert.yaml'))
+    conf_bert_ttp = YAML().load(open('dvc_pipes/bert_ttp/params_bert_ttp.yaml'))
 
     df = load_external_data(conf)
+    df, mlb, mlb_ttp = enc_classes(df, conf, use_rare_ttp=False)
 
-    df = enc_classes(df)
+    # на самом деле 208 train тут уже есть - синтетика
+    df['split'] = df['split'].fillna('tr')
+
+    model_bert, loss_bert_d, thresh_l, _, _, _, (p_tr_micro, r_tr_micro, f1_tr_micro, p_tr_macro, r_tr_macro, f1_tr_macro) = train_bert(df, mlb, conf, conf_bert, target_col= 'labels', thresh_space_l=[])
+
+
+    conf_ttp = YAML().load(open('dvc_pipes/ttp/params_ttp.yaml'))
+    # NEED ?
+    conf = YAML().load(open('params.yaml'))
     
-    # df.to_csv(conf['prep_text']['prep_fn'], index=False)
+    # чтобы новый конф работал вместо старого в функции
+    conf_ttp['feat_gen'] = conf_ttp['feat_gen_ttp'] 
+    conf_ttp['seed'] = conf['seed']
+    conf_ttp['use_only_proc'] = conf['use_only_proc']
+    
+    mlb_ttp = joblib.load(conf['prep_text']['ttp_mlb_fn'])
+    
+    df_ttp = add_aug_sents(df.copy(), conf_ttp, conf_bert_ttp['nn_ttp']['maxlen'])
+    
+    df_ttp['target'] = mlb_ttp.transform(df_ttp['ttp']).tolist()
 
+    # NEED ?
+    conf = YAML().load(open('params.yaml'))
+    
+    conf['feat_gen'] = conf_ttp['feat_gen_ttp']
+    conf['train_eval_model'] = conf_ttp['train_eval_model_ttp']
+    
+    
+    conf_bert_ttp['nn'] = conf_bert_ttp['nn_ttp']
+    conf_bert_ttp['nn_bert'] = conf_bert_ttp['nn_bert_ttp']
+    
+    
+    model_bert_ttp, loss_bert_ttp_d, thresh_ttp_l, _, _, _, (p_tr_micro, r_tr_micro, f1_tr_micro, p_tr_macro, r_tr_macro, f1_tr_macro) = train_bert(df_ttp, mlb_ttp, conf, conf_bert_ttp, target_col= 'ttp', thresh_space_l=np.arange(0.001, 1, 0.002))
 
+    torch.save(model_bert_ttp, conf['train_fin']['model_technik_fn'])
+    torch.save(model_bert, conf['train_fin']['model_taktic_fn'])
+    
+    joblib.dump(thresh_ttp_l, conf['train_fin']['thresh_ttp_fn'])
+    joblib.dump(thresh_l, conf['train_fin']['thresh_fn'])
     
 def load_external_data(conf):
 
@@ -46,15 +91,15 @@ def load_external_data(conf):
     
     label2tactic = mitre_attack_df.set_index('labels')['kill_chain_tags'].to_dict()
     
-    with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
-        json.dump(label2tactic, f_wr)
+    # with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
+    #     json.dump(label2tactic, f_wr)
 
         # ------------------------
-    # сохранение ВСЕ ЛИ НАДО???
+    # NEED?
     mitre_attack_df = mitre_attack_df[['sentence', 'labels', 'url', 'par_name', 'is_proc']]
-    mitre_attack_df.to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
+    # mitre_attack_df.to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
     
-    mitre_df.to_csv(conf['get_data']['data_mitre_fn'], index=False)
+    # mitre_df.to_csv(conf['get_data']['data_mitre_fn'], index=False)
 
     mitre_attack_df = mitre_attack_df.assign(labels = mitre_attack_df['labels'].map(lambda x:[x]))
 
@@ -105,7 +150,7 @@ def load_external_data(conf):
     df = df[df['sentence'].str.split().str.len()>=5].reset_index(drop=True)
     
     # NEED?
-    df.to_csv(conf['get_data']['data_fn'], index=False)
+    # df.to_csv(conf['get_data']['data_fn'], index=False)
 
     # таргет execution-а добавляем
     tech_l = ['T1218', 'T1480', 'T1202', 'T1216', 'T1127']
@@ -115,7 +160,7 @@ def load_external_data(conf):
     df.loc[sel, 'labels'] = df.loc[sel, 'labels'].map(lambda x: x + ['execution'])
 
     # NEED?
-    df.to_csv(conf['get_data']['data_filt_fn'], index=False)
+    # df.to_csv(conf['get_data']['data_filt_fn'], index=False)
 
     # --------------------------
     # prep.py

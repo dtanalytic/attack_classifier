@@ -65,6 +65,11 @@ train_eval_model:
   metrics_fn: data/out/m.json
   add_metrics_fn: data/out/m_other.json
   model_fn: data/out/model.pkl
+train_fin:
+  model_taktic_fn: data/out/model_taktic.pkl
+  model_technik_fn: data/out/model_technik.pkl
+  thresh_ttp_fn: data/out/thresh_ttp_l.pkl
+  thresh_fn: data/out/thresh_l.pkl # тут копирование, по сути из валидационной части
 seed: 0
 val_ts_size: 0.15
 val_only_proc: false
