@@ -1,3 +1,4 @@
+import numpy as np
 
 from transformers import BertTokenizer
 from transformers import DataCollatorWithPadding
@@ -6,9 +7,9 @@ from transformers import RobertaTokenizer, RobertaModel
 from torch.utils.data import DataLoader, Dataset
 
 from src.funcs import get_preds
+from src.spec_nn_funcs import TextDFDataset, TextModelClass
 
-
-def predict(pred_df, model, thresh_l, conf_bert, suf):
+def predict_bert(pred_df, model, thresh_l, conf_bert, suf):
     
     batch_size = conf_bert['nn']['batch_size']
     

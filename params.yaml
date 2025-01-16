@@ -70,7 +70,7 @@ train_fin:
   model_technik_fn: data/out/model_technik.pkl
   thresh_ttp_fn: data/out/thresh_ttp_l.pkl
   thresh_fn: data/out/thresh_l.pkl # тут копирование, по сути из валидационной части
-seed: 0
+seed: 1
 val_ts_size: 0.15
 val_only_proc: false
 val_nmitr: false

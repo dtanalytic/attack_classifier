@@ -253,12 +253,12 @@ def train_bert(data, mlb, conf, conf_dop, target_col, thresh_space_l):
     else:
         Y_val = pd.Series([])
         Y_val_proba = pd.Series([])
-    
     # кейс обучение bert_ttp или обучения_валидации bert_ttp
     if conf_dop['nn_bert']['thresh_split']=="tr":
         y_thresh = np.array(data.loc[tr_idx, 'target'].values.tolist())
         y_thresh_probas = np.array(res_tr['pred'])
         thresh_l = get_opt_thresh(y_true = y_thresh, probas = y_thresh_probas, mlb = mlb, opt_metric=conf['train_eval_model']['opt_metric'], thresh_space_l=thresh_space_l, dump_fn = conf_dop['nn_bert']['opt_metric_fn'])
+        joblib.dump(thresh_l, conf_dop['nn_bert']['thresh_l_fn'])
     else:
         # кейс обучения_валидации bert
         if set(data['split'].unique())!=set(['tr']):

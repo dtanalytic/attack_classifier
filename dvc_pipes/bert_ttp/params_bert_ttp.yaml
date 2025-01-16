@@ -17,6 +17,7 @@ nn_bert_ttp:
     metrics_fn: "data/out/bert_ttp/bert_m.json"
     add_metrics_fn: "data/out/bert_ttp/bert_m_other.json"
     logloss_fig_fn: 'data/out/bert_ttp/bert_logloss.png'
+    thresh_l_fn: 'data/out/bert/thresh_ttp_l.pkl'
     pr_auc_fig_fn: 'data/out/bert_ttp/bert_pr_auc.png'
     opt_metric_fn: 'data/out/bert_ttp/bert_opt_metric.csv'
     by_class_metric_fn: 'data/out/bert_ttp/bert_by_class_metric.csv'
