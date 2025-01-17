@@ -1,14 +1,54 @@
 import numpy as np
+import pandas as pd
 
 from transformers import BertTokenizer
 from transformers import DataCollatorWithPadding
 from transformers import RobertaTokenizer, RobertaModel
 
 from torch.utils.data import DataLoader, Dataset
+import torch
+
+from ruamel.yaml import YAML
+import joblib
 
 from src.funcs import get_preds
 from src.spec_nn_funcs import TextDFDataset, TextModelClass
 
+def predict(pred_l):
+    '''
+    Parameters
+    ----------
+    pred_l - list of strings
+    Returns
+    -------
+    pandas DataFrame with predicted tuples of:
+                                            - taktics ('pred_str_tak' column)
+                                            - technik ('pred_str_tech' column)
+    
+    '''
+    conf = YAML().load(open('params.yaml'))
+    conf_bert = YAML().load(open('dvc_pipes/bert/params_bert.yaml'))
+    conf_bert_ttp = YAML().load(open('dvc_pipes/bert_ttp/params_bert_ttp.yaml'))
+    conf_bert_ttp['nn'] = conf_bert_ttp['nn_ttp']
+    conf_bert_ttp['nn_bert'] = conf_bert_ttp['nn_bert_ttp']
+
+    mlb = joblib.load(conf['prep_text']['mlb_fn'])
+    mlb_ttp = joblib.load(conf['prep_text']['ttp_mlb_fn'])
+
+    model_bert_tak = torch.load(conf['train_fin']['model_taktic_fn'])
+    model_bert_tech = torch.load(conf['train_fin']['model_technik_fn'])
+    thresh_tech_l = joblib.load(conf['train_fin']['thresh_ttp_fn'])
+    thresh_tak_l = joblib.load(conf['train_fin']['thresh_fn'])
+
+    pred_df = predict_bert(pd.DataFrame({'sentence':pred_l}).assign(target=1), model_bert_tak, thresh_tak_l, conf_bert, suf='tak')
+
+    pred_df = predict_bert(pred_df, model_bert_tech, thresh_tech_l, conf_bert_ttp, suf='tech')
+
+    pred_df['pred_str_tech'] = pred_df['pred_tech'].map(lambda x: mlb_ttp.inverse_transform(np.array([x]))[0])
+    pred_df['pred_str_tak'] = pred_df['pred_tak'].map(lambda x: mlb.inverse_transform(np.array([x]))[0])
+
+    return pred_df
+    
 def predict_bert(pred_df, model, thresh_l, conf_bert, suf):
     
     batch_size = conf_bert['nn']['batch_size']
