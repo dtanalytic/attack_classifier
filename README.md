@@ -10,6 +10,7 @@
 4) Перейти в каталог data и распаковать external, где хранятся скачанные с hugging face предварительные модели (предварительно архивировал - "tar -cvzf external.tar.gz external"):
    - cd data
    - tar -xvf external.tar.gz
+     
 Опционально
 5) Если потребуется вносить изменения, для первичной настройки git-а задать имя пользователя и почту:
    - git config --global user.name "as"
