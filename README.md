@@ -11,7 +11,8 @@
    - cd data
    - tar -xvf external.tar.gz
      
-Опционально
+Опционально:
+
 5) Если потребуется вносить изменения, для первичной настройки git-а задать имя пользователя и почту:
    - git config --global user.name "as"
    - git config --global user.email "as@mail.ru"
