@@ -12,8 +12,13 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import torch
 
 
+
 import sys
 sys.path.append('.')
+from src.funcs import set_seed
+
+conf_seed = YAML().load(open('params.yaml'))
+set_seed(conf_seed['seed'])
 
 from src.spec_funcs import load_mitr, prep_mitr
 from src.constants import (regexp_email, regexp_cve, regexp_url, regexp_domain, regexp_registry,  regexp_fpath, 
@@ -23,7 +28,7 @@ from src.constants import (regexp_email, regexp_cve, regexp_url, regexp_domain, 
                             regexp_coins_doge, regexp_coins_dash, regexp_coins_xmr, regexp_coins_neo, regexp_coins_xrp)
 from src.spec_funcs import replace_entities
 
-from src.funcs import set_seed
+
 from src.spec_nn_funcs import train_bert
 from src.aug_sent import add_aug_sents
 from src.spec_nn_funcs import TextDFDataset, TextModelClass, train_eval_bert
@@ -35,9 +40,8 @@ def train():
     reads configs from param.yaml, dvc_pipes/ttp/params_ttp.aml, dvc_pipes/bert_ttp/params_ttp.aml
     '''
     # получаем данные митра
+
     conf = YAML().load(open('params.yaml'))
-    set_seed(conf['seed'])
-    
     conf_bert = YAML().load(open('dvc_pipes/bert/params_bert.yaml'))
     conf_bert_ttp = YAML().load(open('dvc_pipes/bert_ttp/params_bert_ttp.yaml'))
 
@@ -60,8 +64,11 @@ def train():
     conf_ttp['use_only_proc'] = conf['use_only_proc']
     
     mlb_ttp = joblib.load(conf['prep_text']['ttp_mlb_fn'])
-    
-    df_ttp = add_aug_sents(df.copy(), conf_ttp, conf_bert_ttp['nn_ttp']['maxlen'])
+
+    if conf_ttp['feat_gen']['add_aug_sents']:
+        df_ttp = add_aug_sents(df.copy(), conf_ttp, conf_bert_ttp['nn_ttp']['maxlen'])
+    else:
+        df_ttp = df.copy()
     
     df_ttp['target'] = mlb_ttp.transform(df_ttp['ttp']).tolist()
 
@@ -94,7 +101,7 @@ def load_external_data(conf):
     # with open(conf['get_data']['label2tactic_fn'], 'wt') as f_wr:
     #     json.dump(label2tactic, f_wr)
 
-        # ------------------------
+    # ------------------------
     # NEED?
     mitre_attack_df = mitre_attack_df[['sentence', 'labels', 'url', 'par_name', 'is_proc']]
     # mitre_attack_df.to_csv(conf['get_data']['data_mitre_attack_proc_fn'], index=False)
@@ -134,7 +141,9 @@ def load_external_data(conf):
 
     df['origin_labels'] = df['labels']
     df['origin_ttp'] = df['labels']
-
+    if conf['get_data']['ignore_subt']:
+        df['origin_labels'] = df['origin_labels'].map(lambda x: [it.split('.')[0] for it in x])
+            
     df['labels'] = df['labels'].map(lambda x: list(chain(*[label2tactic[it] if it in label2tactic else '' for it in x ])))
 
     df.sentence = df.sentence.str.strip()

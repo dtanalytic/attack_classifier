@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 import os
+from ruamel.yaml import YAML
 
 import pandas as pd
 import numpy as np
@@ -29,8 +30,13 @@ from transformers import RobertaTokenizer, RobertaModel
 
 DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
+
 import sys
 sys.path.append('.')
+
+from src.funcs import set_seed
+conf_seed = YAML().load(open('params.yaml'))
+set_seed(conf_seed['seed'])
 
 from src.funcs import metric_multi
 from src.funcs import get_opt_thresh, get_preds

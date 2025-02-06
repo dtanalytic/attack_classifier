@@ -6,7 +6,7 @@ import json
 from nltk import word_tokenize
 from itertools import chain
 import re 
-
+from ruamel.yaml import YAML
 from sklearn.cluster import KMeans
 
 
@@ -33,6 +33,11 @@ import matplotlib.pyplot as plt
 
 import sys
 sys.path.append('.')
+
+from src.funcs import set_seed
+conf_seed = YAML().load(open('params.yaml'))
+set_seed(conf_seed['seed'])
+
 from src.funcs import metric_multi
 from src.funcs import get_conf_df, get_pred_thresh, set_seed, get_opt_thresh
 

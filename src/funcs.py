@@ -1,7 +1,7 @@
 import re
 import random
 import numpy as np
-
+from ruamel.yaml import YAML
 import nltk
 from nltk.stem import SnowballStemmer
 from nltk import word_tokenize
@@ -17,13 +17,14 @@ from collections import Counter
 from pymystem3 import Mystem
 
 
-from sklearn.metrics import average_precision_score, precision_recall_fscore_support
+from sklearn.metrics import average_precision_score, precision_recall_fscore_support, roc_curve
 from sklearn.ensemble import RandomForestClassifier
 
 import pandas as pd
 
 
 import torch
+
 
 def set_seed(seed):
     random.seed(seed)
@@ -33,6 +34,9 @@ def set_seed(seed):
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+
+conf_seed = YAML().load(open('params.yaml'))
+set_seed(conf_seed['seed'])
 
 
 
@@ -218,6 +222,16 @@ def get_pred_thresh(y_true, proba, opt_metric, thresh_space_l=[]):
     thresh = res_df.index[res_df[opt_metric].argmax()].round(3)
 
     return res_df, thresh
+
+def get_pred_fpr_thresh(y_true, proba, fpr_max):
+    # границы подбираются грубо
+    # fpr, tpr, roc_thresholds = roc_curve(y_true, proba)
+    # id_fpr = np.where(fpr<fpr_max)[0][-1]
+    # thresh = roc_thresholds[id_fpr]
+    
+    thresh = np.quantile(proba, 1-fpr_max)
+    
+    return pd.DataFrame([]), thresh
     
 def get_opt_thresh(y_true, probas, mlb, opt_metric, thresh_space_l=[], dump_fn=None):
 
@@ -226,11 +240,20 @@ def get_opt_thresh(y_true, probas, mlb, opt_metric, thresh_space_l=[], dump_fn=N
 
     metric = opt_metric
     num_cls = len(mlb.classes_)
-    
+    # по количеству классов определим это татики или техники
+    ttp_flag = False
+    if num_cls>100:
+        ttp_flag = True
+        fpr_max = 0.01
+        
     for i in range(num_cls):
 
-        res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric, thresh_space_l)
-        
+        if ttp_flag:
+            # res_df, thresh = get_pred_fpr_thresh(y_true[:,i], probas[:,i], fpr_max)
+            res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric, thresh_space_l)
+        else:
+            res_df, thresh = get_pred_thresh(y_true[:,i], probas[:,i], opt_metric, thresh_space_l)
+            
         res_d[i] = res_df
         thresh_l.append(thresh)
 

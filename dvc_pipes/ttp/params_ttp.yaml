@@ -9,7 +9,7 @@ feat_gen_ttp:
   ind_sel_tree_max_depth: 3
   ind_sel_estim_num: 10
   add_individual_thresh: 0.3 # null if not use individual
-  add_aug_sents: true
+  add_aug_sents: false
   aug_num_mask_pos: [1]
   aug_repeate_mask: 1
   aug_topk: 8

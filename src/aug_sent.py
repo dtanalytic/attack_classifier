@@ -3,11 +3,21 @@ from itertools import product
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-
+from ruamel.yaml import YAML
 import torch
 import transformers
 from transformers import RobertaTokenizer, RobertaTokenizerFast
 from sentence_transformers import SentenceTransformer
+
+
+import sys
+sys.path.append('.')
+
+from src.funcs import set_seed
+
+conf_seed = YAML().load(open('params.yaml'))
+set_seed(conf_seed['seed'])
+
 
 def make_mask_list(sent, mask_token, num_mask_pos, repeate=1):
     res_l = []
