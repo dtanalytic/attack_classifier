@@ -27,6 +27,8 @@ from sklearn.metrics import (log_loss, roc_auc_score, average_precision_score, f
 from sklearn.ensemble import ExtraTreesClassifier, HistGradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
+
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -41,7 +43,44 @@ set_seed(conf_seed['seed'])
 from src.funcs import metric_multi
 from src.funcs import get_conf_df, get_pred_thresh, set_seed, get_opt_thresh
 
+def split_data(data, seed):
+    
+    mitre_sel = data['url'].str.contains('https://attack.mitre.org', na=False)
+    other_nempty_sel = (~mitre_sel) & (data['ttp'].map(lambda x: len(x)>0))
+    other_empty_sel = (~mitre_sel) & (data['ttp'].map(lambda x: len(x)==0))
+    
+    tr_idx = data[mitre_sel].index
+    val_idx = data[~mitre_sel].index
+    data['split'] = 'val'
 
+    # пустых в пропорции столько, сколько непустых
+    frac = mitre_sel.sum()/(mitre_sel.sum()+other_nempty_sel.sum())
+    
+    N = other_empty_sel.sum()
+    seq_idx_empty_tr = set(np.random.choice(range(N), size=int(N*frac), replace=False))
+    # seq_idx_empty_val = set(range(N)) - seq_idx_empty_tr
+    
+    empty_idx = data.loc[other_empty_sel].index
+    
+    # empty_val_idx = empty_idx.values[list(seq_idx_empty_val)].tolist()
+    tr_mod_idx = tr_idx.tolist() + empty_idx.values[list(seq_idx_empty_tr)].tolist()
+    
+    data.loc[tr_mod_idx, 'split'] = 'tr'
+
+    mskf = MultilabelStratifiedKFold(n_splits=2, shuffle=True, random_state=seed)
+        
+    # позиции от 0 до m
+    for val_idx, ts_idx in mskf.split(data.query('split=="val"').values, np.array(data.query('split=="val"')['target_ttp'].tolist())):
+        break
+    
+    val = data.query('split=="val"').index[val_idx]
+    ts = data.query('split=="val"').index[val_idx]
+    
+    data.loc[ts, 'split'] = 'ts'
+
+    # data.explode('ttp').groupby(['split', 'ttp']).size().unstack()
+    return data
+    
 def load_mitr(fn):
 
     d=json.load(open(fn))

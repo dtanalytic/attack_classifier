@@ -2,11 +2,13 @@ get_data:
   mitre_attack_fn: data/external/enterprise-attack.json
   tram_fn: data/external/multi_label.json
   mitre_alt_fn: data/external/dataset.txt
+  cti_hal_dn: data/external/cti_hal
   use_alt_mitre: false
   rep_dn: data/external/rep_dn
   use_tram_f: true
   use_reports_f: true
   add_empty_reports: false
+  add_cti_hal: false
   ignore_subt: true
   divide_paras: true
   target: tactic

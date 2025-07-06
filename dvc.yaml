@@ -18,6 +18,7 @@ stages:
     - ${get_data.data_mitre_attack_proc_fn}
     - ${get_data.label2tactic_fn}
     - ${get_data.mitre_alt_fn}
+    - ${get_data.cti_hal_dn}
     - ${get_data.rep_dn}
     - src/get_add_data.py
     params:
@@ -25,6 +26,7 @@ stages:
     - get_data.use_tram_f
     - get_data.use_reports_f
     - get_data.add_empty_reports
+    - get_data.add_cti_hal
     - get_data.use_alt_mitre
     - get_data.target
     - get_data.data_fn

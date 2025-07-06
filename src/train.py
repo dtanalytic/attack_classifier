@@ -50,7 +50,7 @@ def train():
 
     # на самом деле 208 train тут уже есть - синтетика
     df['split'] = df['split'].fillna('tr')
-
+    
     model_bert, loss_bert_d, thresh_l, _, _, _, (p_tr_micro, r_tr_micro, f1_tr_micro, p_tr_macro, r_tr_macro, f1_tr_macro) = train_bert(df, mlb, conf, conf_bert, target_col= 'labels', thresh_space_l=[])
 
 

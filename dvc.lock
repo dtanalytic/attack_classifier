@@ -30,6 +30,11 @@ stages:
   get_add_data:
     cmd: python src/get_add_data.py params.yaml
     deps:
+    - path: data/external/cti_hal
+      hash: md5
+      md5: 026bbcbd76a02037795392343233701a.dir
+      size: 1475485
+      nfiles: 83
     - path: data/external/dataset.txt
       hash: md5
       md5: d0a5e5ec3a635aaa4277acef01371c13
@@ -57,13 +62,14 @@ stages:
       size: 3075041
     - path: src/get_add_data.py
       hash: md5
-      md5: dea3d5b70086c27265eab448c90a846c
-      size: 4927
+      md5: c1b1a5e524331de38d5e6e09d21ab416
+      size: 5575
     params:
       params.yaml:
+        get_data.add_cti_hal: false
         get_data.add_empty_reports: false
         get_data.data_fn: data/interim/mitre_full_df.csv
-        get_data.ignore_subt: false
+        get_data.ignore_subt: true
         get_data.target: tactic
         get_data.use_alt_mitre: false
         get_data.use_reports_f: true
@@ -71,15 +77,15 @@ stages:
     outs:
     - path: data/interim/mitre_full_df.csv
       hash: md5
-      md5: 429c7f65c543d3137c8d935a367273af
-      size: 6880788
+      md5: d2e9c3d03a3969bdeb5094a6245cd739
+      size: 6840972
   manual_data_filter:
     cmd: python src/manual_data_filter.py params.yaml
     deps:
     - path: data/interim/mitre_full_df.csv
       hash: md5
-      md5: 429c7f65c543d3137c8d935a367273af
-      size: 6880788
+      md5: d2e9c3d03a3969bdeb5094a6245cd739
+      size: 6840972
     - path: src/manual_data_filter.py
       hash: md5
       md5: 484c7ba808785ef1c6d02b9fb953933e
@@ -87,28 +93,28 @@ stages:
     outs:
     - path: data/interim/mitre_full_filt_df.csv
       hash: md5
-      md5: e14a4302a65d282e17ab01236de0c4bb
-      size: 6884178
+      md5: bf0efa69d00187f4dde0065b6dbaec7b
+      size: 6844362
   text_preprocess:
     cmd: python src/prep.py params.yaml
     deps:
     - path: data/external/chatgpt
       hash: md5
-      md5: 61e18a3eef4692c4130e86a47698a111.dir
-      size: 753819
-      nfiles: 7
+      md5: 2202cce9443330031efaa3c698cf94a2.dir
+      size: 899103
+      nfiles: 8
     - path: data/interim/mitre_full_filt_df.csv
       hash: md5
-      md5: e14a4302a65d282e17ab01236de0c4bb
-      size: 6884178
+      md5: bf0efa69d00187f4dde0065b6dbaec7b
+      size: 6844362
     - path: src/prep.py
       hash: md5
       md5: 3e40b187e6d6de4669aae98940cfca66
       size: 7310
     - path: src/spec_funcs.py
       hash: md5
-      md5: 98a52a82a0f542097076cca399bba2a1
-      size: 23483
+      md5: 99dedcba6f7bd8b5d6f870c037bdb03b
+      size: 25162
     params:
       params.yaml:
         prep_text.include_chatgpt_aug: true
@@ -126,35 +132,35 @@ stages:
     outs:
     - path: data/interim/mlb.pkl
       hash: md5
-      md5: f6e434cde6b00a9cb10a7d61de2ba431
+      md5: 87cf6ff444dee3f019542e538440639f
       size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
-      md5: 246b373823b6e9ca93695a80e41d2cd7
-      size: 89530206
+      md5: 7fae2c9a0425c2c008697346d14f6d2c
+      size: 83563427
     - path: data/interim/ttp/mlb.pkl
       hash: md5
-      md5: 3108e14e036c3ff632a2d7b4612d2d14
-      size: 3484
+      md5: b35062ef0c04ba1e5be369dbbc7dfef2
+      size: 2236
   feature_generation:
     cmd: python src/feat_gen.py params.yaml
     deps:
     - path: data/interim/mlb.pkl
       hash: md5
-      md5: f6e434cde6b00a9cb10a7d61de2ba431
+      md5: 87cf6ff444dee3f019542e538440639f
       size: 1386
     - path: data/interim/prep_df.csv
       hash: md5
-      md5: 246b373823b6e9ca93695a80e41d2cd7
-      size: 89530206
+      md5: 7fae2c9a0425c2c008697346d14f6d2c
+      size: 83563427
     - path: src/feat_gen.py
       hash: md5
       md5: 50bed1dbe5499a9a8a2c709c1fb3fbef
       size: 947
     - path: src/spec_funcs.py
       hash: md5
-      md5: 98a52a82a0f542097076cca399bba2a1
-      size: 23483
+      md5: 99dedcba6f7bd8b5d6f870c037bdb03b
+      size: 25162
     params:
       params.yaml:
         feat_gen.add_individual_thresh: 0.65
@@ -172,31 +178,31 @@ stages:
     outs:
     - path: data/interim/data_df.csv
       hash: md5
-      md5: e915bde20f5180cb869015bb1178b6f1
-      size: 71858123
+      md5: 51607e9e747a50da172ca051c7b34f98
+      size: 71818358
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: 2e98c2476b87b1dfafaf324bd2fe4808
-      size: 49232883
+      md5: e11adca590838dbb68d86750744d7a51
+      size: 48305241
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 663c7d87325be443a8d55dc9038e2b5e
-      size: 119905
+      md5: 97973ec7dba4879e2c6933dce68a61be
+      size: 120774
   feature_engineering:
     cmd: python src/feat_eng.py params.yaml
     deps:
     - path: data/interim/data_df.csv
       hash: md5
-      md5: e915bde20f5180cb869015bb1178b6f1
-      size: 71858123
+      md5: 51607e9e747a50da172ca051c7b34f98
+      size: 71818358
     - path: data/interim/feat_df.csv
       hash: md5
-      md5: 2e98c2476b87b1dfafaf324bd2fe4808
-      size: 49232883
+      md5: e11adca590838dbb68d86750744d7a51
+      size: 48305241
     - path: data/interim/vec.pkl
       hash: md5
-      md5: 663c7d87325be443a8d55dc9038e2b5e
-      size: 119905
+      md5: 97973ec7dba4879e2c6933dce68a61be
+      size: 120774
     - path: src/feat_eng.py
       hash: md5
       md5: 8ff46456063924cf11170b703fe22931
@@ -212,15 +218,15 @@ stages:
     outs:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 2c925bf5cd62ac719eaa77cb71b735d7
-      size: 49356573
+      md5: 0303642970ca27539f418356d95b1f4a
+      size: 48428931
   train_eval_model:
     cmd: python src/train_eval_model.py params.yaml
     deps:
     - path: data/out/feat_final_df.csv
       hash: md5
-      md5: 2c925bf5cd62ac719eaa77cb71b735d7
-      size: 49356573
+      md5: 0303642970ca27539f418356d95b1f4a
+      size: 48428931
     - path: src/train_eval_model.py
       hash: md5
       md5: 1c810a84bc50a31b2fb11424c0b7c3f2
@@ -236,36 +242,36 @@ stages:
     outs:
     - path: data/out/by_class_metric.csv
       hash: md5
-      md5: 5a6f135b31ca085b800fc542e124424c
-      size: 484
+      md5: 78052f3aad598939ee9599ce5d2534c3
+      size: 483
     - path: data/out/conf_df.csv
       hash: md5
-      md5: 8d0ee85aa7cdf0ac7b96f3a5dd04a246
-      size: 217456
+      md5: 414011071982df9423b4ac0315edf9a9
+      size: 236532
     - path: data/out/confusion_matrix.png
       hash: md5
-      md5: 59b67a9af807edf3f422212572b1ec96
-      size: 117807
+      md5: e5d0f789b2a50cf55f725cfe60bf8289
+      size: 125838
     - path: data/out/confusion_matrix_main_er.png
       hash: md5
-      md5: 5a67a6e33525a73d5e9c4a6ca2ae0b68
-      size: 95153
+      md5: f1340223889381d51dd8c4deb50179c4
+      size: 106038
     - path: data/out/m.json
       hash: md5
-      md5: 26a76be3a3fc6657b3446821b41b88de
-      size: 137
+      md5: bbfcb25b2eba34b37714be4b590b17a8
+      size: 136
     - path: data/out/m_other.json
       hash: md5
-      md5: 92ed38c2fbadae9c4851c93d3b3af9c4
-      size: 558
+      md5: 3dfb5360f8582dc9a5ebad12acbe33bb
+      size: 554
     - path: data/out/model.pkl
       hash: md5
-      md5: 01e40f6e96359e9561580644c3afce17
-      size: 109543
+      md5: bda423371c13bcb4881f5921a51cdba2
+      size: 107642
     - path: data/out/opt_metric.csv
       hash: md5
-      md5: f8c88a1aed249e16ef16eeedea177e71
-      size: 20999
+      md5: 9fb82c31d92d3463593ad4021c78e14d
+      size: 20959
   train_bert_model:
     cmd: dvc repro dvc_pipes/bert/dvc.yaml
   train_ttp_classic_model:

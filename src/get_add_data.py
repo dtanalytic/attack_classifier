@@ -5,6 +5,7 @@ import json
 from itertools import chain
 import click
 import os
+import glob
 
 from ruamel.yaml import YAML
 
@@ -57,7 +58,20 @@ def main(config_path):
         df = pd.concat([mitr_df, tram_df], ignore_index=True)
     else:
         df = mitr_df
+
+    if conf['get_data']['add_cti_hal']:
         
+        fns = glob.glob(f"{conf['get_data']['cti_hal_dn']}/**/*.json", recursive=True)
+        
+        hal_df = pd.concat([pd.read_json(it)[['context', 'technique']].rename(columns={'context':'sentence', 'technique':'labels'})\
+                                .assign(url=f'https://github.com/dessertlab/CTI-HAL/data/{it.split("data/external/cti_hal/")[1]}')
+                            for it in fns], ignore_index=True)
+    
+        hal_df = hal_df[hal_df['labels'].notna()]
+        hal_df.labels=hal_df.labels.map(lambda x: [x])
+        df = pd.concat([df, hal_df], ignore_index=True)
+
+    
     if conf['get_data']['use_reports_f']:
         DN = conf['get_data']['rep_dn']
         fns = [f'{DN}/{it}' for it in os.listdir(DN) if 'json' in it]
